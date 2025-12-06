@@ -145,7 +145,9 @@ export default class Sidebar {
 		const resizeObserver = new ResizeObserver(entries => {
 			const width = entries[0].contentRect.width
 			this.menuContainer.style.maxHeight = `${width}px`
-		})
+			// Reposition annotation icons
+			this.view.updateBoardAnnotations()
+		});
 		resizeObserver.observe(boardEl)
 	}
 }

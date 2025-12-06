@@ -35,6 +35,7 @@ export class ChessView extends MarkdownRenderChild {
 	private sidebar: Sidebar
 	private moves: AnnotatedMove[]
 	private config: Config
+	private mainEl: HTMLElement
 
 	public currentMoveIndex: number
 
@@ -50,6 +51,7 @@ export class ChessView extends MarkdownRenderChild {
 		this.ctx = ctx
 		this.chess = new Chess()
 		this.config = config
+		this.mainEl = this.containerEl.createDiv()
 		
 		if(!this.loadMoveList()) { return }
 
@@ -121,7 +123,7 @@ export class ChessView extends MarkdownRenderChild {
 			const move = this.moves[this.currentMoveIndex]
 			lastMove = [move.from, move.to]
 		}
-		this.cg = Chessground(this.containerEl.createDiv(), {
+		this.cg = Chessground(this.mainEl.createDiv(), {
 			fen: this.chess.fen(),
 			lastMove,
 			orientation: this.config.orientation as Color,
@@ -147,7 +149,11 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private applyStyles() {
-		this.containerEl.addClasses([
+		this.containerEl.addClass('chess-view-container')
+		if(this.config.showAnnotations) {
+			this.containerEl.addClass('has-annotations')
+		}
+		this.mainEl.addClasses([
 			this.config.pieceStyle,
 			`${this.config.boardStyle}-board`, "chess-view"]
 		)
@@ -158,29 +164,29 @@ export class ChessView extends MarkdownRenderChild {
 
 	private setupSidebar() {
 		if (this.config.showSidebar) {
-			this.sidebar = new Sidebar(this.containerEl, this)
+			this.sidebar = new Sidebar(this.mainEl, this)
 		} else {
-			this.containerEl.addClass("no-menu")
+			this.mainEl.addClass("no-menu")
 		}
 	}
 
 	private applyCoordinates() {
-		const boardEl = this.containerEl.querySelector('.cg-wrap') as HTMLElement
+		const boardEl = this.mainEl.querySelector('.cg-wrap')
 		if (this.config.enableCoordinates === true) {
-			boardEl?.addClass('chess-show-coords')
+			boardEl.addClass('chess-show-coords')
 		} else {
-			boardEl?.removeClass('chess-show-coords')
+			boardEl.removeClass('chess-show-coords')
 		}
 	}
 
 	private setupKeyboardShortcuts() {
-		this.containerEl.setAttribute("tabindex", "0")
-		this.containerEl.style.outline = "none"
+		this.mainEl.setAttribute("tabindex", "0")
+		this.mainEl.style.outline = "none"
 
-		this.containerEl.addEventListener("keydown", (e: KeyboardEvent) => {
+		this.mainEl.addEventListener("keydown", (e: KeyboardEvent) => {
 			const activeElement = document.activeElement
-			const isFocused = activeElement === this.containerEl || 
-			                  this.containerEl.contains(activeElement)
+			const isFocused = activeElement === this.mainEl || 
+			                  this.mainEl.contains(activeElement)
 			
 			if (isFocused && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
 				e.preventDefault()
@@ -194,10 +200,10 @@ export class ChessView extends MarkdownRenderChild {
 			}
 		})
 
-		this.containerEl.addEventListener("click", (e: MouseEvent) => {
+		this.mainEl.addEventListener("click", (e: MouseEvent) => {
 			const target = e.target as HTMLElement
-			if (target === this.containerEl || target.closest('.chess-view')) {
-				this.containerEl.focus()
+			if (target === this.mainEl || target.closest('.chess-view')) {
+				this.mainEl.focus()
 			}
 		}, true) // Use capture phase to catch clicks early
 	}
@@ -221,13 +227,12 @@ export class ChessView extends MarkdownRenderChild {
 		}
 	}
 
-	private updateBoardAnnotations() {
+	public updateBoardAnnotations() {
 		if (!this.config.showAnnotations) {
 			return
 		}
 
-		const boardEl = this.containerEl.querySelector('.cg-wrap')
-		boardEl.querySelectorAll('.chess-annotation-icon').forEach(el => el.remove())
+		this.mainEl.querySelectorAll('.chess-annotation-icon').forEach(el => el.remove())
 
 		if (this.currentMoveIndex >= 0 && this.currentMoveIndex < this.moves.length) {
 			const move = this.moves[this.currentMoveIndex]
@@ -240,15 +245,23 @@ export class ChessView extends MarkdownRenderChild {
 	private addAnnotationIcon(square: Key, annotation: MoveAnnotation) {
 		const icon = getAnnotationIcon(annotation)
 		const tooltip = getAnnotationTooltip(annotation)
-		const boardEl = this.containerEl.querySelector('.cg-wrap')
-		let squareEl = boardEl.querySelector(`square.last-move`) as HTMLElement
+		const squareEl = this.mainEl.querySelector(`square.last-move`)
 		const iconEl = document.createElement('img')
 
+		// Calculate icon position relative
+		const childRect = squareEl.getBoundingClientRect()
+ 		const parentRect = this.mainEl.getBoundingClientRect()
+		const rightPadding = 9
+		const rightPosition = parentRect.right - childRect.right - rightPadding
+		const topPosition = childRect.top - parentRect.top
+
 		iconEl.className = `chess-annotation-icon`
+		iconEl.style.right = `${rightPosition}px`
+		iconEl.style.top = `${topPosition}px`
 		iconEl.setAttribute('title', tooltip)
 		iconEl.setAttribute('alt', tooltip)
 		iconEl.setAttribute('src', icon)
-		squareEl.appendChild(iconEl)
+		this.mainEl.appendChild(iconEl)
 	}
 
 	public getPossibleMoves(): Map<Key, Key[]> {
@@ -334,6 +347,6 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private presentError(errorMessage: string) {
-		presentError(this.containerEl, errorMessage)
+		presentError(this.mainEl, errorMessage)
 	}
 }

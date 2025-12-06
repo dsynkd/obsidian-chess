@@ -1,13 +1,15 @@
-.chess-view {
+.chess-view-container {
 	--sidebar-menu-min-width: 150px;
 	--move-list-gap: 10px;
+	&.has-annotations {
+		padding-top: 10px;
+	}
 }
 
 .chess-view {
 	display: flex;
 	align-items: flex-start;
 	border: 1px solid var(--background-modifier-border);
-	overflow: hidden;
 
 	&.no-menu {
 		border: none;
@@ -31,12 +33,12 @@ div.cg-wrap {
 	
 	width: 400px;
 	resize: horizontal;
-	overflow: hidden;
 	flex: none;
 	min-width: 300px;
 	max-width: calc(100% - var(--sidebar-menu-min-width));
 	aspect-ratio: 1;
 	z-index: 1;
+	overflow: hidden;
 
 	/* Fix coordinate placement */
 
@@ -58,17 +60,15 @@ div.cg-wrap {
 	&.chess-show-coords coords {
 		opacity: 1;
 	}
+}
 
-	& .chess-annotation-icon {
-		position: absolute;
-		top: -8px;
-		right: -8px;
-		width: 18px;
-		height: 18px;
-		z-index: 10;
-		/* Fix blurry background */
-		box-shadow: 1px 1px 100px rgba(0, 0, 0, 0.2);
-	}
+.chess-annotation-icon {
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	z-index: 10;
+	/* Fix blurry background */
+	box-shadow: 1px 1px 100px rgba(0, 0, 0, 0.2);
 }
 
 .chess-sidebar {
