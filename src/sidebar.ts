@@ -1,6 +1,7 @@
 import { setIcon, Setting } from "obsidian"
 import { ChessView, AnnotatedMove } from "./view"
-import { 
+import {
+	resultAnnotationRegex,
 	getAnnotationClass,
 	getAnnotationTooltip,
 } from "./annotations"
@@ -99,9 +100,12 @@ export default class Sidebar {
 	}
 
 	public redrawMoveList() {
+		const isLastMove = this.view.currentMoveIndex === this.view.history().length - 1
+		const gameResult = this.view.getGameResult()
 		this.movesListEl.empty()
 		this.movesListEl.createDiv({
-			text: this.view.turn() === "b" ? "Black's turn" : "White's turn",
+			text: isLastMove && gameResult ? gameResult :
+				  (this.view.turn() === "b" ? "Black's turn" : "White's turn"),
 			cls: "chess-turn-text",
 		})
 		this.movesListEl.createDiv("chess-move-list", (moveListEl) => {
@@ -131,11 +135,10 @@ export default class Sidebar {
 					const annotationClass = getAnnotationClass(move.annotation)
 					const annotationEl = moveEl.createSpan({
 						cls: `chess-move-annotation chess-move-annotation-${annotationClass}`,
-						text: move.annotation,
+						text: (resultAnnotationRegex.test(move.annotation) ? " " : "") + move.annotation,
 					})
-					annotationEl.setAttribute("title", getAnnotationTooltip(move.annotation))
+					// annotationEl.setAttribute("title", getAnnotationTooltip(move.annotation))
 				}
-				
 			})
 		})
 	}
@@ -147,7 +150,7 @@ export default class Sidebar {
 			this.menuContainer.style.maxHeight = `${width}px`
 			// Reposition annotation icons
 			this.view.updateBoardAnnotations()
-		});
+		})
 		resizeObserver.observe(boardEl)
 	}
 }

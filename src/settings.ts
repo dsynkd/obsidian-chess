@@ -1,5 +1,5 @@
 import { BOARD_STYLES, PIECE_STYLES } from "./config"
-import { ChessPlugin } from "./main"
+import ChessPlugin from "./main"
 
 import { App, PluginSettingTab, Setting } from "obsidian"
 

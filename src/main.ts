@@ -3,7 +3,7 @@ import { ChessView } from "./view"
 import { Settings, ChessPluginSettingTab, DEFAULT_SETTINGS } from "./settings"
 import { Config, parseUserConfig } from "./config"
 
-export class ChessPlugin extends Plugin {
+export default class ChessPlugin extends Plugin {
 	settings: Settings
 
 	async onload() {

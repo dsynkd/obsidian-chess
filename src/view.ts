@@ -14,6 +14,7 @@ import { Config } from "./config"
 import { 
 	sanRegex,
 	annotationRegex,
+	resultAnnotationRegex,
 	MoveAnnotation,
 	getAnnotationIcon,
 	getAnnotationClass,
@@ -36,6 +37,7 @@ export class ChessView extends MarkdownRenderChild {
 	private moves: AnnotatedMove[]
 	private config: Config
 	private mainEl: HTMLElement
+	private gameResult: string | undefined
 
 	public currentMoveIndex: number
 
@@ -88,33 +90,42 @@ export class ChessView extends MarkdownRenderChild {
 			return false
 		}
 
-		const moves = this.chess.history({ verbose: true })
-		if (this.config.pgn) {
-			this.moves = this.parseAnnotations(moves, this.config.pgn)
-		} else {
-			this.moves = moves.map(move => ({ ...move, annotation: null } as AnnotatedMove))
-		}
-		
+		this.moves = this.chess.history({ verbose: true })
 		this.currentMoveIndex = this.moves.length - 1
+		this.loadAnnotations()
 		return true
 	}
 
-	private parseAnnotations(moves: Move[], pgn: string): AnnotatedMove[] {
-		const matches = pgn.matchAll(sanRegex)
-		const matchesArray = [...matches]
-		const moveAnnotations = Array(matchesArray.length).fill(null)
+	private loadAnnotations(): AnnotatedMove[] {
+		if(!this.config.showAnnotations || !this.config.pgn) { return }
+
+		const pgn = this.config.pgn
+		const matches = [...pgn.matchAll(sanRegex)]
 		
-		matchesArray.forEach((match, index) => {
-			const annotationIndex = match.index + match[0].length
+		matches.forEach((match, index) => {
+			let annotationIndex = match.index + match[0].length
 			const annotationMatch = pgn.slice(annotationIndex, annotationIndex+2).match(annotationRegex)
+
 			if(annotationMatch) {
-				moveAnnotations[index] = annotationMatch[0]
+				const annotation = annotationMatch[0] as MoveAnnotation
+				this.moves[index].annotation = annotation
+				if(annotation === "#") {
+					this.gameResult = this.moves[index].color == "w" ? "White wins" : "Black wins"
+				}
+			} // Check for result annotation in the last move (if not checkmate)
+			else if(index == matches.length-1) {
+				this.loadResultAnnotation(pgn.slice(annotationIndex, pgn.length).trim(), index)
 			}
 		})
+	}
 
-		return moves.map((move, index) => {
-			return { ...move, annotation: moveAnnotations[index] } as AnnotatedMove
-		})
+	private loadResultAnnotation(result: string, index: number) {
+		const resultMatch = result.match(resultAnnotationRegex)
+		if(resultMatch) {
+			const annotation = resultMatch[0] as MoveAnnotation
+			this.moves[index].annotation = annotation
+			this.setGameResult(annotation)
+		}
 	}
 
 	private setupChessground() {
@@ -236,16 +247,64 @@ export class ChessView extends MarkdownRenderChild {
 
 		if (this.currentMoveIndex >= 0 && this.currentMoveIndex < this.moves.length) {
 			const move = this.moves[this.currentMoveIndex]
-			if (move.annotation) {
-				this.addAnnotationIcon(move.to, move.annotation)
-			}
+			this.setAnnotationIcon(move)
 		}
 	}
 
-	private addAnnotationIcon(square: Key, annotation: MoveAnnotation) {
+	private setAnnotationIcon(move: AnnotatedMove) {
+		const annotation = move.annotation
+		if(!annotation) { return }
+
 		const icon = getAnnotationIcon(annotation)
 		const tooltip = getAnnotationTooltip(annotation)
-		const squareEl = this.mainEl.querySelector(`square.last-move`)
+		const lastMoveSquareEl = this.mainEl.querySelector(`square.last-move`)
+		
+		const boardEl = this.containerEl.querySelector('.cg-wrap')
+		const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
+		const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
+		
+		if(annotation == "#" && typeof(tooltip) == "string") {
+			const checkmateIcon = icon[0]
+			const winnerIcon = icon[1]
+
+			if(move.color == "w") {
+				this.addAnnotationIcon(blackKingSquareEl, checkmateIcon, tooltip)
+				this.addAnnotationIcon(lastMoveSquareEl, winnerIcon, "White Wins")
+			} else {
+				this.addAnnotationIcon(whiteKingSquareEl, checkmateIcon, tooltip)
+				this.addAnnotationIcon(lastMoveSquareEl, winnerIcon, "Black Wins")
+			}
+		}
+		else if(annotation == "1-0") {
+			const blackResignsIcon = icon[0]
+			const winnerIcon = icon[1]
+			const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
+			const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
+			this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, tooltip[0])
+			this.addAnnotationIcon(blackKingSquareEl, blackResignsIcon, tooltip[1])
+		}
+		else if(annotation == "0-1") {
+			const whiteResignsIcon = icon[0]
+			const winnerIcon = icon[1]
+			const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
+			const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
+			this.addAnnotationIcon(whiteKingSquareEl, whiteResignsIcon, tooltip[0])
+			this.addAnnotationIcon(blackKingSquareEl, winnerIcon, tooltip[1])
+		}
+		else if(annotation == "1/2-1/2" && typeof(tooltip) == "string") {
+			const whiteDrawIcon = icon[0]
+			const blackDrawIcon = icon[1]
+			const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
+			const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
+			this.addAnnotationIcon(whiteKingSquareEl, whiteDrawIcon, tooltip)
+			this.addAnnotationIcon(blackKingSquareEl, blackDrawIcon, tooltip)
+		}
+		else if(typeof(tooltip) == "string" && typeof(icon) == "string") {
+			this.addAnnotationIcon(lastMoveSquareEl, icon, tooltip)
+		}
+	}
+
+	private addAnnotationIcon(squareEl: Element, icon: string, tooltip: string) {
 		const iconEl = document.createElement('img')
 
 		// Calculate icon position relative
@@ -340,6 +399,15 @@ export class ChessView extends MarkdownRenderChild {
 
 	public getFen() {
 		return this.chess.fen()
+	}
+
+	private setGameResult(annotation: MoveAnnotation) {
+		let tooltip = getAnnotationTooltip(annotation)
+		this.gameResult = typeof(tooltip) == "string" ? tooltip : tooltip[0]
+	}
+
+	public getGameResult(): string | undefined {
+		return this.gameResult
 	}
 
 	public shouldShowAnnotations(): boolean {
