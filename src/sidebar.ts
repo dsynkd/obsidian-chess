@@ -8,16 +8,17 @@ import {
 
 export default class Sidebar {
 	private view: ChessView
-	private menuContainer: HTMLElement
-	private movesListEl: HTMLElement
+	private sidebarEl: HTMLElement
+	private moveListContainer: HTMLElement
+	private moveListEl: HTMLElement
 	private toolbar: HTMLElement
 	private parentContainer: HTMLElement
 
 	constructor(parentEl: HTMLElement, view: ChessView) {
 		this.view = view
 		this.parentContainer = parentEl
-		this.menuContainer = this.parentContainer.createDiv("chess-sidebar")
-		this.movesListEl = this.menuContainer.createDiv("chess-sidebar-section")
+		this.sidebarEl = this.parentContainer.createDiv("chess-sidebar")
+		this.moveListContainer = this.sidebarEl.createDiv("chess-sidebar-section")
 
 		this.redrawMoveList()
 		this.createToolbar()
@@ -25,7 +26,7 @@ export default class Sidebar {
 	}
 
 	private createToolbar() {
-		this.toolbar = this.menuContainer.createDiv("chess-toolbar")
+		this.toolbar = this.sidebarEl.createDiv("chess-toolbar")
 		this.createPreviousMoveButton()
 		this.createNextMoveButton()
 		this.createFlipBoardButton()
@@ -102,52 +103,91 @@ export default class Sidebar {
 	public redrawMoveList() {
 		const isLastMove = this.view.currentMoveIndex === this.view.history().length - 1
 		const gameResult = this.view.getGameResult()
-		this.movesListEl.empty()
-		this.movesListEl.createDiv({
+		
+		const previousScrollPosition = this.moveListEl?.scrollTop
+		
+		this.moveListContainer.empty()
+		this.moveListContainer.createDiv({
 			text: isLastMove && gameResult ? gameResult :
 				  (this.view.turn() === "b" ? "Black's turn" : "White's turn"),
 			cls: "chess-turn-text",
 		})
-		this.movesListEl.createDiv("chess-move-list", (moveListEl) => {
-			this.view.history().forEach((move, idx) => {
-				const moveEl = moveListEl.createDiv({
-					cls: `chess-move ${
-						this.view.currentMoveIndex === idx ? "chess-move-active" : ""
-					}`,
-				})
-				// Create move text element
-				const moveText = moveEl.createSpan({
-					text: move.san,
-				})
+		
+		let activeMoveEl: HTMLElement | null = null
+		this.moveListEl = this.moveListContainer.createDiv("chess-move-list")
+		
+		this.view.history().forEach((move, idx) => {
+			const moveEl = this.moveListEl.createDiv({
+				cls: `chess-move ${
+					this.view.currentMoveIndex === idx ? "chess-move-active" : ""
+				}`,
+			})
+			
+			// Track the active move element
+			if (this.view.currentMoveIndex === idx) {
+				activeMoveEl = moveEl
+			}
+			
+			const moveText = moveEl.createSpan({
+				text: move.san,
+			})
 
-				moveEl.addEventListener("click", (ev) => {
-					ev.preventDefault()
-					this.view.setMoveIndex(idx)
-				})
+			moveEl.addEventListener("click", (ev) => {
+				ev.preventDefault()
+				this.view.setMoveIndex(idx)
+			})
+			this.addMoveAnnotation(move, moveEl)
+		})
+		
+		if(this.view.currentMoveIndex == -1) {
+			// Always scroll move list to the top on Reset Board
+			this.moveListEl.scrollTop = 0
+		} else if(isLastMove) {
+			// Always scroll all the way down on last move
+			setTimeout(() => { this.moveListEl.scrollTop = this.moveListEl.scrollHeight }, 50)
+		} else {
+			this.restoreScrollPosition(activeMoveEl, previousScrollPosition ?? 0)
+		}
+	}
 
-				if(this.view.shouldShowAnnotations() == false) {
-					return
-				}
+	private addMoveAnnotation(move: AnnotatedMove, moveEl: HTMLElement) {
+		if(!this.view.shouldShowAnnotations()) { return }
+		
+		// Mate symbol is included in SAN
+		if (move.annotation && move.san.charAt(move.san.length-1) != '#') { 
+			const annotationClass = getAnnotationClass(move.annotation)
+			moveEl.createSpan({
+				cls: `chess-move-annotation chess-move-annotation-${annotationClass}`,
+				text: (resultAnnotationRegex.test(move.annotation) ? " " : "") + move.annotation,
+			})
+		}
+	}
+
+	private restoreScrollPosition(activeMoveEl: HTMLElement | null, position: number) {
+		this.moveListEl.scrollTop = position
+		
+		if (activeMoveEl) {
+			// Use requestAnimationFrame to ensure DOM is fully rendered
+			requestAnimationFrame(() => {
+				const containerRect = this.moveListEl.getBoundingClientRect()
+				const moveRect = activeMoveEl!.getBoundingClientRect()
 				
-				// Add move annotation
-				if (move.annotation && move.san.charAt(move.san.length-1) != '#') { // Mate symbol is included in SAN
-					// Create a safe class name from annotation
-					const annotationClass = getAnnotationClass(move.annotation)
-					const annotationEl = moveEl.createSpan({
-						cls: `chess-move-annotation chess-move-annotation-${annotationClass}`,
-						text: (resultAnnotationRegex.test(move.annotation) ? " " : "") + move.annotation,
-					})
-					// annotationEl.setAttribute("title", getAnnotationTooltip(move.annotation))
+				// Check if move is outside visible area
+				const isAboveViewport = moveRect.bottom < containerRect.top
+				const isBelowViewport = moveRect.top > containerRect.bottom
+				
+				if (isAboveViewport || isBelowViewport) {
+					activeMoveEl!.scrollIntoView({ behavior: 'instant', block: 'nearest' })
 				}
 			})
-		})
+		}
 	}
 
 	private setupResizeObserver() {
 		const boardEl = this.parentContainer.querySelector('.cg-wrap')
 		const resizeObserver = new ResizeObserver(entries => {
 			const width = entries[0].contentRect.width
-			this.menuContainer.style.maxHeight = `${width}px`
+			this.sidebarEl.style.maxHeight = `${width}px`
 			// Reposition annotation icons
 			this.view.updateBoardAnnotations()
 		})

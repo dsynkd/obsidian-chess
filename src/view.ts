@@ -113,9 +113,15 @@ export class ChessView extends MarkdownRenderChild {
 				if(annotation === "#") {
 					this.gameResult = this.moves[index].color == "w" ? "White wins" : "Black wins"
 				}
-			} // Check for result annotation in the last move (if not checkmate)
+			} // Check for result annotation in the last move
 			else if(index == matches.length-1) {
-				this.loadResultAnnotation(pgn.slice(annotationIndex, pgn.length).trim(), index)
+				// Edge case where PGN doesn't contain checkmate annotation but it is actually a mate
+				if(this.moves[index].san.endsWith('#')) {
+					this.moves[index].annotation = '#'
+					this.gameResult = this.moves[index].color == "w" ? "White wins" : "Black wins"
+				} else {
+					this.loadResultAnnotation(pgn.slice(annotationIndex, pgn.length).trim(), index)
+				}
 			}
 		})
 	}
