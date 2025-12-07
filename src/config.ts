@@ -6,9 +6,7 @@ export interface Config extends Settings {
 	fen: string
 	pgn?: string
 	startingMoveIndex?: number
-	centerBoard: boolean
 	moves?: string[]
-	enableSounds: boolean
 }
 
 const ORIENTATIONS = ["white", "black"]

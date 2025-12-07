@@ -185,7 +185,7 @@ export class ChessView extends MarkdownRenderChild {
 
 	private setupSidebar() {
 		if (this.config.showSidebar) {
-			this.sidebar = new Sidebar(this.mainEl, this)
+			this.sidebar = new Sidebar(this.mainEl, this, this.config)
 		} else {
 			this.mainEl.addClass("no-menu")
 		}
@@ -445,10 +445,6 @@ export class ChessView extends MarkdownRenderChild {
 
 	public getGameResult(): string | undefined {
 		return this.gameResult
-	}
-
-	public shouldShowAnnotations(): boolean {
-		return this.config.showAnnotations ?? true
 	}
 
 	private playSound(move: Move): void {

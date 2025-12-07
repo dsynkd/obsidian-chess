@@ -13,6 +13,7 @@ export interface Settings {
 	centerBoard: boolean
 	showAnnotations: boolean
 	enableSounds: boolean
+	showToolbar: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -25,6 +26,7 @@ export const DEFAULT_SETTINGS: Settings = {
 	centerBoard: false,
 	showAnnotations: true,
 	enableSounds: false,
+	showToolbar: true,
 }
 
 export class ChessPluginSettingTab extends PluginSettingTab {
@@ -122,6 +124,16 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 				this.plugin.saveSettings()
 			})
 		})
+
+		new Setting(containerEl)
+			.setName("Enable Toolbar")
+			.setDesc("Displays toolbar buttons for navigation and controls in the sidebar.")
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.showToolbar).onChange((showToolbar) => {
+					this.plugin.settings.showToolbar = showToolbar
+					this.plugin.saveSettings()
+				})
+			})
 
 		containerEl.createEl('h3', { text: 'Annotations' })
 

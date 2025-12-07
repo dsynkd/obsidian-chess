@@ -5,18 +5,21 @@ import {
 	getAnnotationClass,
 	getAnnotationTooltip,
 } from "./annotations"
+import { Config } from "./config"
 
 export default class Sidebar {
 	private view: ChessView
 	private sidebarEl: HTMLElement
 	private moveListContainer: HTMLElement
 	private moveListEl: HTMLElement
-	private toolbar: HTMLElement
+	private toolbar: HTMLElement | null
 	private parentContainer: HTMLElement
+	private config: Config
 
-	constructor(parentEl: HTMLElement, view: ChessView) {
+	constructor(parentEl: HTMLElement, view: ChessView, config: Config) {
 		this.view = view
 		this.parentContainer = parentEl
+		this.config = config
 		this.sidebarEl = this.parentContainer.createDiv("chess-sidebar")
 		this.moveListContainer = this.sidebarEl.createDiv("chess-sidebar-section")
 
@@ -26,12 +29,13 @@ export default class Sidebar {
 	}
 
 	private createToolbar() {
+		if(!this.config.showToolbar) { return }
 		this.toolbar = this.sidebarEl.createDiv("chess-toolbar")
 		this.createPreviousMoveButton()
 		this.createNextMoveButton()
 		this.createFlipBoardButton()
 		this.createResetButton()
-		this.createHideMenuButton()
+		this.createToggleSidebarButton()
 	}
 
 	private createPreviousMoveButton() {
@@ -87,7 +91,7 @@ export default class Sidebar {
 		})
 	}
 
-	private createHideMenuButton() {
+	private createToggleSidebarButton() {
 		this.toolbar.createEl("a", "view-action", (btn: HTMLAnchorElement) => {
 
 			btn.ariaLabel = "Toggle Sidebar"
@@ -151,7 +155,7 @@ export default class Sidebar {
 	}
 
 	private addMoveAnnotation(move: AnnotatedMove, moveEl: HTMLElement) {
-		if(!this.view.shouldShowAnnotations()) { return }
+		if(!this.config.showAnnotations) { return }
 		
 		// Mate symbol is included in SAN
 		if (move.annotation && move.san.charAt(move.san.length-1) != '#') { 
