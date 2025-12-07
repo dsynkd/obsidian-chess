@@ -10,6 +10,7 @@
 	display: flex;
 	align-items: flex-start;
 	border: 1px solid var(--background-modifier-border);
+	position: relative;
 
 	&.no-menu {
 		border: none;
@@ -23,6 +24,10 @@
 			min-width: 0;
 			/* opacity: 0; */
 			transform: translateX(-100%);
+		}
+
+		& .chess-toggle-sidebar-btn {
+			display: flex;
 		}
 	}
 }
@@ -144,4 +149,25 @@ div.cg-wrap {
 
 .center-board div.cg-wrap {
 	margin: 0 auto;
+}
+
+.chess-toggle-sidebar-btn {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	cursor: pointer;
+	padding: 6px;
+	border-radius: 4px;
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	display: none;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+
+	&:hover {
+		opacity: 1;
+		background-color: var(--background-modifier-hover);
+	}
 }

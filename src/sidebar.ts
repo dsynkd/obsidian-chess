@@ -90,7 +90,7 @@ export default class Sidebar {
 	private createHideMenuButton() {
 		this.toolbar.createEl("a", "view-action", (btn: HTMLAnchorElement) => {
 
-			btn.ariaLabel = "Hide Menu"
+			btn.ariaLabel = "Toggle Sidebar"
 			setIcon(btn, "menu")
 
 			btn.addEventListener("click", (e: MouseEvent) => {

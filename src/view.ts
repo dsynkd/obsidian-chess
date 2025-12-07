@@ -4,6 +4,7 @@ import {
 	MarkdownRenderChild,
 	Notice,
 } from "obsidian"
+import { setIcon } from "obsidian"
 import { Chess, Move, SQUARES } from "chess.js"
 import { Chessground } from "chessground"
 import { Api } from "chessground/api"
@@ -62,6 +63,7 @@ export class ChessView extends MarkdownRenderChild {
 		this.applyCoordinates()
 		this.applyStyles()
 		this.setupSidebar()
+		this.setupToggleSidebarButton()
 		this.setupKeyboardShortcuts()
 	}
 
@@ -187,6 +189,26 @@ export class ChessView extends MarkdownRenderChild {
 		} else {
 			this.mainEl.addClass("no-menu")
 		}
+	}
+
+	private setupToggleSidebarButton() {
+		if (!this.config.showSidebar) {
+			return
+		}
+
+		const toggleBtn = this.mainEl.createEl("a", "chess-toggle-sidebar-btn")
+		toggleBtn.ariaLabel = "Toggle Sidebar"
+		setIcon(toggleBtn, "menu")
+
+		toggleBtn.addEventListener("click", (e: MouseEvent) => {
+			e.preventDefault()
+			e.stopPropagation()
+			if (this.mainEl.hasClass("no-menu")) {
+				this.mainEl.removeClass("no-menu")
+			} else {
+				this.mainEl.addClass("no-menu")
+			}
+		})
 	}
 
 	private applyCoordinates() {
