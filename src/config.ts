@@ -8,6 +8,7 @@ export interface Config extends Settings {
 	startingMoveIndex?: number
 	centerBoard: boolean
 	moves?: string[]
+	enableSounds: boolean
 }
 
 const ORIENTATIONS = ["white", "black"]

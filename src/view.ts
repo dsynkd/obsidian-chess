@@ -21,6 +21,7 @@ import {
 	getAnnotationTooltip,
 } from "./annotations"
 import Sidebar from "./sidebar"
+import { playMoveSound, playCaptureSound } from "./sounds"
 import "./styles"
 
 
@@ -147,6 +148,7 @@ export class ChessView extends MarkdownRenderChild {
 					const move = this.chess.move({ from: orig, to: dest })
 					this.currentMoveIndex++
 					this.moves = [...this.moves.slice(0, this.currentMoveIndex), { ...move, annotation: null as MoveAnnotation } as AnnotatedMove]
+					this.playSound(move)
 					this.syncBoard()
 				},
 			}
@@ -375,10 +377,17 @@ export class ChessView extends MarkdownRenderChild {
 
 	public previousMove() {
 		this.setMoveIndex(this.currentMoveIndex - 1)
+		
+		/* Do not play sound on undo
+		if(this.currentMoveIndex > -1) {
+			playMoveSound()
+		}
+		*/
 	}
 
 	public nextMove() {
 		this.setMoveIndex(this.currentMoveIndex + 1)
+		this.playSound(this.moves[this.currentMoveIndex])
 	}
 
 	public turn() {
@@ -412,6 +421,17 @@ export class ChessView extends MarkdownRenderChild {
 
 	public shouldShowAnnotations(): boolean {
 		return this.config.showAnnotations ?? true
+	}
+
+	private playSound(move: Move): void {
+		if (!this.config.enableSounds) { return }
+
+		// Check if this move captured a piece
+		if (move.captured) {
+			playCaptureSound()
+		} else {
+			playMoveSound()
+		}
 	}
 
 	private presentError(errorMessage: string) {

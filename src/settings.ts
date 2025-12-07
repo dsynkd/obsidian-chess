@@ -12,6 +12,7 @@ export interface Settings {
 	showSidebar: boolean
 	centerBoard: boolean
 	showAnnotations: boolean
+	enableSounds: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -23,6 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
 	showSidebar: true,
 	centerBoard: false,
 	showAnnotations: true,
+	enableSounds: false,
 }
 
 export class ChessPluginSettingTab extends PluginSettingTab {
@@ -129,6 +131,18 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showAnnotations).onChange((showAnnotations) => {
 					this.plugin.settings.showAnnotations = showAnnotations
+					this.plugin.saveSettings()
+				})
+			})
+
+		containerEl.createEl('h3', { text: 'Audio' })
+
+		new Setting(containerEl)
+			.setName("Enable Sounds")
+			.setDesc("Plays standard chess move and capture sounds on each move.")
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.enableSounds).onChange((enableSounds) => {
+					this.plugin.settings.enableSounds = enableSounds
 					this.plugin.saveSettings()
 				})
 			})
