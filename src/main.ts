@@ -77,7 +77,7 @@ export default class ChessPlugin extends Plugin {
 
 	private drawFENChessboard(app: App, settings: Settings) {
 		return (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-			let config: Config = {
+			const config: Config = {
 				...settings,
 				fen: source.trim()
 			} 

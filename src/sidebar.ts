@@ -1,5 +1,5 @@
-import { setIcon, Setting } from 'obsidian'
-import { ChessView, AnnotatedMove, GameResult } from './view'
+import { setIcon } from 'obsidian'
+import { ChessView, AnnotatedMove } from './view'
 import { Config } from './config'
 
 export default class Sidebar {
@@ -120,7 +120,7 @@ export default class Sidebar {
 				activeMoveEl = moveEl
 			}
 			
-			const moveText = moveEl.createSpan({
+			moveEl.createSpan({
 				text: move.san,
 			})
 

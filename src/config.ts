@@ -2,14 +2,11 @@ import { parseYaml } from 'obsidian'
 import { Settings } from './settings'
 
 export interface Config extends Settings {
-	id?: string
 	fen: string
 	pgn?: string
 	startingMoveIndex?: number
-	moves?: string[]
 }
 
-const ORIENTATIONS = ['white', 'black']
 export const PIECE_STYLES = [
 	'alpha',
 	'california',
@@ -58,7 +55,8 @@ export function parseUserConfig(
 			...settings,
 			...parseYaml(content),
 		}
-	} catch (e) { // Will get handled at drawChessboard
+	} catch {
+		// Will get handled at drawChessboard
 		return null
 	}
 }

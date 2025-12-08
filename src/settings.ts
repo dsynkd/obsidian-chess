@@ -38,7 +38,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		let { containerEl } = this
+		const { containerEl } = this
 
 		containerEl.empty()
 
@@ -68,7 +68,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Piece Style')
 			.addDropdown((dropdown) => {
-				let styles: Record<string, string> = {}
+				const styles: Record<string, string> = {}
 				PIECE_STYLES.map((style) => (styles[style] = style))
 				dropdown.addOptions(styles)
 
@@ -81,7 +81,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Board Style')
 			.addDropdown((dropdown) => {
-				let styles: Record<string, string> = {}
+				const styles: Record<string, string> = {}
 				BOARD_STYLES.map((style) => (styles[style] = style))
 				dropdown.addOptions(styles)
 

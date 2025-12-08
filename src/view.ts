@@ -1,8 +1,7 @@
 import {
 	App,
 	MarkdownPostProcessorContext,
-	MarkdownRenderChild,
-	Notice,
+	MarkdownRenderChild
 } from 'obsidian'
 import { setIcon } from 'obsidian'
 import { Chess, Move, SQUARES } from 'chess.js'
@@ -138,7 +137,7 @@ export class ChessView extends MarkdownRenderChild {
 				enabled: true
 			},
 			events: {
-				move: (orig: any, dest: any) => {
+				move: (orig: string, dest: string) => {
 					const move = this.chess.move({ from: orig, to: dest })
 					this.currentMoveIndex++
 					this.moves = [...this.moves.slice(0, this.currentMoveIndex), move]

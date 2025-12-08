@@ -23,7 +23,7 @@ export function playMoveSound(): void {
 		}
 	})
 	
-	audio.play().catch((error) => {
+	audio.play().catch(() => {
 		// console.warn('Failed to play move sound:', error)
 		currentAudio = null
 	})
@@ -41,7 +41,7 @@ export function playCaptureSound(): void {
 		}
 	})
 	
-	audio.play().catch((error) => {
+	audio.play().catch(() => {
 		// console.warn('Failed to play capture sound:', error)
 		currentAudio = null
 	})
