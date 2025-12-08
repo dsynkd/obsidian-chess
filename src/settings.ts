@@ -1,7 +1,7 @@
-import { BOARD_STYLES, PIECE_STYLES } from "./config"
-import ChessPlugin from "./main"
+import { BOARD_STYLES, PIECE_STYLES } from './config'
+import ChessPlugin from './main'
 
-import { App, PluginSettingTab, Setting } from "obsidian"
+import { App, PluginSettingTab, Setting } from 'obsidian'
 
 export interface Settings {
 	viewOnly: boolean
@@ -19,9 +19,9 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
 	viewOnly: false,
 	enableCoordinates: true,
-	pieceStyle: "cburnett",
-	boardStyle: "brown",
-	orientation: "white",
+	pieceStyle: 'cburnett',
+	boardStyle: 'brown',
+	orientation: 'white',
 	showSidebar: true,
 	centerBoard: false,
 	showAnnotations: true,
@@ -46,8 +46,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Chessboard' })
 
 		new Setting(containerEl)
-			.setName("View Only")
-			.setDesc("Display a static chess board, no interactions allowed.")
+			.setName('View Only')
+			.setDesc('Display a static chess board, no interactions allowed.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.viewOnly).onChange((viewOnly) => {
 					this.plugin.settings.viewOnly = viewOnly
@@ -56,8 +56,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName("Show Coordinates")
-			.setDesc("Displays rank (1-8) and file (a-h) labels on the chessboard.")
+			.setName('Show Coordinates')
+			.setDesc('Displays rank (1-8) and file (a-h) labels on the chessboard.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.enableCoordinates).onChange((enableCoordinates) => {
 					this.plugin.settings.enableCoordinates = enableCoordinates
@@ -66,7 +66,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName("Piece Style")
+			.setName('Piece Style')
 			.addDropdown((dropdown) => {
 				let styles: Record<string, string> = {}
 				PIECE_STYLES.map((style) => (styles[style] = style))
@@ -79,7 +79,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName("Board Style")
+			.setName('Board Style')
 			.addDropdown((dropdown) => {
 				let styles: Record<string, string> = {}
 				BOARD_STYLES.map((style) => (styles[style] = style))
@@ -92,10 +92,10 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName("Default Orientation")
+			.setName('Default Orientation')
 			.addDropdown((dropdown) => {
-				dropdown.addOption("white", "White")
-				dropdown.addOption("black", "Black")
+				dropdown.addOption('white', 'White')
+				dropdown.addOption('black', 'Black')
 
 				dropdown.setValue(this.plugin.settings.orientation).onChange((orientation) => {
 					this.plugin.settings.orientation = orientation
@@ -106,8 +106,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Sidebar' })
 
 		new Setting(containerEl)
-			.setName("Show Sidebar")
-			.setDesc("Displays a sidebar containing move history and controls.")
+			.setName('Show Sidebar')
+			.setDesc('Displays a sidebar containing move history and controls.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showSidebar).onChange((showSidebar) => {
 					this.plugin.settings.showSidebar = showSidebar
@@ -116,8 +116,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-		.setName("Center Chessboard")
-		.setDesc("Cemter the board when the sidebar is hidden.")
+		.setName('Center Chessboard')
+		.setDesc('Cemter the board when the sidebar is hidden.')
 		.addToggle((toggle) => {
 			toggle.setValue(this.plugin.settings.centerBoard).onChange((centerBoard) => {
 				this.plugin.settings.centerBoard = centerBoard
@@ -126,8 +126,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		})
 
 		new Setting(containerEl)
-			.setName("Enable Toolbar")
-			.setDesc("Displays toolbar buttons for navigation and controls in the sidebar.")
+			.setName('Enable Toolbar')
+			.setDesc('Displays toolbar buttons for navigation and controls in the sidebar.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showToolbar).onChange((showToolbar) => {
 					this.plugin.settings.showToolbar = showToolbar
@@ -138,8 +138,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Annotations' })
 
 		new Setting(containerEl)
-			.setName("Show Annotations")
-			.setDesc("Displays move annotations (!!, !, ?!, ?, ??) on the board and in the move list.")
+			.setName('Show Annotations')
+			.setDesc('Displays move annotations (!!, !, ?!, ?, ??) on the board and in the move list.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showAnnotations).onChange((showAnnotations) => {
 					this.plugin.settings.showAnnotations = showAnnotations
@@ -150,8 +150,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Audio' })
 
 		new Setting(containerEl)
-			.setName("Enable Sounds")
-			.setDesc("Plays standard chess move and capture sounds on each move.")
+			.setName('Enable Sounds')
+			.setDesc('Plays standard chess move and capture sounds on each move.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.enableSounds).onChange((enableSounds) => {
 					this.plugin.settings.enableSounds = enableSounds

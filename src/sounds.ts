@@ -1,5 +1,5 @@
-import moveSound from "../assets/sound/move.mp3"
-import captureSound from "../assets/sound/capture.mp3"
+import moveSound from '../assets/sound/move.mp3'
+import captureSound from '../assets/sound/capture.mp3'
 
 let currentAudio: HTMLAudioElement | null = null
 

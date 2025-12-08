@@ -3,20 +3,20 @@ import {
 	MarkdownPostProcessorContext,
 	MarkdownRenderChild,
 	Notice,
-} from "obsidian"
-import { setIcon } from "obsidian"
-import { Chess, Move, SQUARES } from "chess.js"
-import { Chessground } from "chessground"
-import { Api } from "chessground/api"
-import { Color, Key } from "chessground/types"
-import { Game, parsePgn, PgnNodeData } from "chessops/pgn"
+} from 'obsidian'
+import { setIcon } from 'obsidian'
+import { Chess, Move, SQUARES } from 'chess.js'
+import { Chessground } from 'chessground'
+import { Api } from 'chessground/api'
+import { Color, Key } from 'chessground/types'
+import { Game, parsePgn, PgnNodeData } from 'chessops/pgn'
 
-import { presentError } from "./main"
-import { Config } from "./config"
-import { MoveAnnotation } from "./annotations"
-import Sidebar from "./sidebar"
-import { playMoveSound, playCaptureSound } from "./sounds"
-import "./styles"
+import { presentError } from './main'
+import { Config } from './config'
+import { MoveAnnotation } from './annotations'
+import Sidebar from './sidebar'
+import { playMoveSound, playCaptureSound } from './sounds'
+import './styles'
 
 export type AnnotatedMove = Move & {
 	annotation?: MoveAnnotation
@@ -70,7 +70,7 @@ export class ChessView extends MarkdownRenderChild {
 
 	public loadMoveList() {
 		if (this.config.pgn && this.config.fen) {
-			throw "Both FEN and PGN detected."
+			throw 'Both FEN and PGN detected.'
 		}
 
 		if (this.config.pgn) {
@@ -80,7 +80,7 @@ export class ChessView extends MarkdownRenderChild {
 			this.chess.load(this.config.fen)
 		}
 		else {
-			throw "No FEN or PGN found."
+			throw 'No FEN or PGN found.'
 		}
 
 		this.moves = this.chess.history({ verbose: true })
@@ -162,7 +162,7 @@ export class ChessView extends MarkdownRenderChild {
 		}
 		this.mainEl.addClasses([
 			this.config.pieceStyle,
-			`${this.config.boardStyle}-board`, "chess-view"]
+			`${this.config.boardStyle}-board`, 'chess-view']
 		)
 		if(this.config.centerBoard) {
 			this.containerEl.addClass('center-board')
@@ -173,24 +173,24 @@ export class ChessView extends MarkdownRenderChild {
 		if (this.config.showSidebar) {
 			this.sidebar = new Sidebar(this.mainEl, this, this.config)
 		} else {
-			this.mainEl.addClass("no-menu")
+			this.mainEl.addClass('no-menu')
 		}
 	}
 
 	private setupToggleSidebarButton() {
 		if (!this.config.showSidebar) { return }
 
-		const toggleBtn = this.mainEl.createEl("a", "chess-toggle-sidebar-btn")
-		toggleBtn.ariaLabel = "Toggle Sidebar"
-		setIcon(toggleBtn, "menu")
+		const toggleBtn = this.mainEl.createEl('a', 'chess-toggle-sidebar-btn')
+		toggleBtn.ariaLabel = 'Toggle Sidebar'
+		setIcon(toggleBtn, 'menu')
 
-		toggleBtn.addEventListener("click", (e: MouseEvent) => {
+		toggleBtn.addEventListener('click', (e: MouseEvent) => {
 			e.preventDefault()
 			e.stopPropagation()
-			if (this.mainEl.hasClass("no-menu")) {
-				this.mainEl.removeClass("no-menu")
+			if (this.mainEl.hasClass('no-menu')) {
+				this.mainEl.removeClass('no-menu')
 			} else {
-				this.mainEl.addClass("no-menu")
+				this.mainEl.addClass('no-menu')
 			}
 		})
 	}
@@ -205,27 +205,27 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private setupKeyboardShortcuts() {
-		this.mainEl.setAttribute("tabindex", "0")
-		this.mainEl.style.outline = "none"
+		this.mainEl.setAttribute('tabindex', '0')
+		this.mainEl.style.outline = 'none'
 
-		this.mainEl.addEventListener("keydown", (e: KeyboardEvent) => {
+		this.mainEl.addEventListener('keydown', (e: KeyboardEvent) => {
 			const activeElement = document.activeElement
 			const isFocused = activeElement === this.mainEl || 
 			                  this.mainEl.contains(activeElement)
 			
-			if (isFocused && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+			if (isFocused && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
 				e.preventDefault()
 				e.stopPropagation()
 				
-				if (e.key === "ArrowLeft") {
+				if (e.key === 'ArrowLeft') {
 					this.previousMove()
-				} else if (e.key === "ArrowRight") {
+				} else if (e.key === 'ArrowRight') {
 					this.nextMove()
 				}
 			}
 		})
 
-		this.mainEl.addEventListener("click", (e: MouseEvent) => {
+		this.mainEl.addEventListener('click', (e: MouseEvent) => {
 			const target = e.target as HTMLElement
 			if (target === this.mainEl || target.closest('.chess-view')) {
 				this.mainEl.focus()
@@ -276,31 +276,31 @@ export class ChessView extends MarkdownRenderChild {
 
 			if(move.san[move.san.length-1] == '#') {
 				
-				if(move.color == "w") {
+				if(move.color == 'w') {
 					const checkmateIcon = MoveAnnotation.getBlackCheckmateIcon()
-					this.addAnnotationIcon(blackKingSquareEl, checkmateIcon, "Checkmate")
-					this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, "White Wins")
+					this.addAnnotationIcon(blackKingSquareEl, checkmateIcon, 'Checkmate')
+					this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, 'White Wins')
 				} else {
 					const checkmateIcon = MoveAnnotation.getWhiteCheckmateIcon()
-					this.addAnnotationIcon(whiteKingSquareEl, checkmateIcon, "Checkmate")
-					this.addAnnotationIcon(blackKingSquareEl, winnerIcon, "Black Wins")
+					this.addAnnotationIcon(whiteKingSquareEl, checkmateIcon, 'Checkmate')
+					this.addAnnotationIcon(blackKingSquareEl, winnerIcon, 'Black Wins')
 				}
 			}
 			else if(this.gameResult == GameResult.WhiteWins) {
 				const blackResignsIcon = MoveAnnotation.getBlackResignsIcon()
-				this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, "White Wins")
-				this.addAnnotationIcon(blackKingSquareEl, blackResignsIcon, "Black Resigns")
+				this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, 'White Wins')
+				this.addAnnotationIcon(blackKingSquareEl, blackResignsIcon, 'Black Resigns')
 			}
 			else if(this.gameResult == GameResult.BlackWins) {
 				const whiteResignsIcon = MoveAnnotation.getWhiteResignsIcon()
-				this.addAnnotationIcon(whiteKingSquareEl, whiteResignsIcon, "White Wins")
-				this.addAnnotationIcon(blackKingSquareEl, winnerIcon, "Black Resigns")
+				this.addAnnotationIcon(whiteKingSquareEl, whiteResignsIcon, 'White Wins')
+				this.addAnnotationIcon(blackKingSquareEl, winnerIcon, 'Black Resigns')
 			}
 			else if(this.gameResult == GameResult.Draw) {
 				const blackDrawIcon = MoveAnnotation.getBlackDrawIcon()
 				const whiteDrawIcon = MoveAnnotation.getWhiteDrawIcon()
-				this.addAnnotationIcon(whiteKingSquareEl, whiteDrawIcon, "Draw")
-				this.addAnnotationIcon(blackKingSquareEl, blackDrawIcon, "Draw")
+				this.addAnnotationIcon(whiteKingSquareEl, whiteDrawIcon, 'Draw')
+				this.addAnnotationIcon(blackKingSquareEl, blackDrawIcon, 'Draw')
 			}
 		}
 
@@ -376,7 +376,7 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	public getTurnColor(): Color {
-		return this.chess.turn() === "w" ? "white" : "black"
+		return this.chess.turn() === 'w' ? 'white' : 'black'
 	}
 
 	public previousMove() {
@@ -425,9 +425,9 @@ export class ChessView extends MarkdownRenderChild {
 
 	public getResultText(result: GameResult): string {
 		switch (result) {
-			case GameResult.WhiteWins: return "White wins"
-			case GameResult.BlackWins: return "Black wins"
-			case GameResult.Draw: return "Draw"
+			case GameResult.WhiteWins: return 'White wins'
+			case GameResult.BlackWins: return 'Black wins'
+			case GameResult.Draw: return 'Draw'
 		}
 	}
 

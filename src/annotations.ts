@@ -1,17 +1,17 @@
 // Analysis icons
-import brilliantIcon from "../assets/analysis-icon/brilliant.svg"
-import greatIcon from "../assets/analysis-icon/great.svg"
-import mistakeIcon from "../assets/analysis-icon/mistake.svg"
-import inaccuracyIcon from "../assets/analysis-icon/inaccuracy.svg"
-import blunderIcon from "../assets/analysis-icon/blunder.svg"
-import interestingIcon from "../assets/analysis-icon/interesting.svg"
-import blackCheckmateIcon from "../assets/analysis-icon/checkmate_black.svg"
-import whiteCheckmateIcon from "../assets/analysis-icon/checkmate_white.svg"
-import whiteResignsIcon from "../assets/analysis-icon/resign_white.svg"
-import blackResignsIcon from "../assets/analysis-icon/resign_black.svg"
-import whiteDrawIcon from "../assets/analysis-icon/draw_white.svg"
-import blackDrawIcon from "../assets/analysis-icon/draw_black.svg"
-import winnerIcon from "../assets/analysis-icon/winner.svg"
+import brilliantIcon from '../assets/analysis-icon/brilliant.svg'
+import greatIcon from '../assets/analysis-icon/great.svg'
+import mistakeIcon from '../assets/analysis-icon/mistake.svg'
+import inaccuracyIcon from '../assets/analysis-icon/inaccuracy.svg'
+import blunderIcon from '../assets/analysis-icon/blunder.svg'
+import interestingIcon from '../assets/analysis-icon/interesting.svg'
+import blackCheckmateIcon from '../assets/analysis-icon/checkmate_black.svg'
+import whiteCheckmateIcon from '../assets/analysis-icon/checkmate_white.svg'
+import whiteResignsIcon from '../assets/analysis-icon/resign_white.svg'
+import blackResignsIcon from '../assets/analysis-icon/resign_black.svg'
+import whiteDrawIcon from '../assets/analysis-icon/draw_white.svg'
+import blackDrawIcon from '../assets/analysis-icon/draw_black.svg'
+import winnerIcon from '../assets/analysis-icon/winner.svg'
 
 enum MoveClass {
     great = 1,

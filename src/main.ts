@@ -1,7 +1,7 @@
-import { App, MarkdownPostProcessorContext, MarkdownView, Notice, Plugin } from "obsidian"
-import { ChessView } from "./view"
-import { Settings, ChessPluginSettingTab, DEFAULT_SETTINGS } from "./settings"
-import { Config, parseUserConfig } from "./config"
+import { App, MarkdownPostProcessorContext, MarkdownView, Notice, Plugin } from 'obsidian'
+import { ChessView } from './view'
+import { Settings, ChessPluginSettingTab, DEFAULT_SETTINGS } from './settings'
+import { Config, parseUserConfig } from './config'
 
 export default class ChessPlugin extends Plugin {
 	settings: Settings
@@ -12,22 +12,22 @@ export default class ChessPlugin extends Plugin {
 
 		// MARK: Register Codeblock Processors
 		this.registerMarkdownCodeBlockProcessor(
-			"chess",
+			'chess',
 			this.drawChessboard(this.app, this.settings)
 		)
 		this.registerMarkdownCodeBlockProcessor(
-			"chess-pgn",
+			'chess-pgn',
 			this.drawPGNChessboard(this.app, this.settings)
 		)
 		this.registerMarkdownCodeBlockProcessor(
-			"chess-fen",
+			'chess-fen',
 			this.drawFENChessboard(this.app, this.settings)
 		)
 		
 		// MARK: Register Commands
 		this.addCommand({
-			id: "chess-toggle-sidebar",
-			name: "Toggle Sidebar",
+			id: 'chess-toggle-sidebar',
+			name: 'Toggle Sidebar',
 			callback: () => {
 				// Only execute if the current active container is a Chess View
 				if(document.activeElement.hasClass('chess-view') === false) {
@@ -57,7 +57,7 @@ export default class ChessPlugin extends Plugin {
 		return (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 			const config = parseUserConfig(settings, source)
 			if(!config) {
-				presentError(el, "Could not parse user config.")
+				presentError(el, 'Could not parse user config.')
 				return
 			}
 			ctx.addChild(new ChessView(el, ctx, config, app))
@@ -68,7 +68,7 @@ export default class ChessPlugin extends Plugin {
 		return (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 			const config: Config = {
 				...settings,
-				fen: "",
+				fen: '',
 				pgn: source.trim(),
 			} 
 			ctx.addChild(new ChessView(el, ctx, config, app))
@@ -87,7 +87,7 @@ export default class ChessPlugin extends Plugin {
 	}
 
 	private refreshActiveViews() {
-		this.app.workspace.getLeavesOfType("markdown").forEach(leaf => {
+		this.app.workspace.getLeavesOfType('markdown').forEach(leaf => {
 			const view = leaf.view as MarkdownView
 			this.app.vault.read(view.file).then(content => {
 				view.setViewData(content, true)
@@ -111,6 +111,6 @@ export function presentError(
 	if(!containerEl) {
 		return
 	}
-	const errorEl = containerEl.createDiv("chess-error")
+	const errorEl = containerEl.createDiv('chess-error')
 	errorEl.textContent = `${errorMessage}`
 }

@@ -1,6 +1,6 @@
-import { setIcon, Setting } from "obsidian"
-import { ChessView, AnnotatedMove, GameResult } from "./view"
-import { Config } from "./config"
+import { setIcon, Setting } from 'obsidian'
+import { ChessView, AnnotatedMove, GameResult } from './view'
+import { Config } from './config'
 
 export default class Sidebar {
 	private view: ChessView
@@ -15,8 +15,8 @@ export default class Sidebar {
 		this.view = view
 		this.parentContainer = parentEl
 		this.config = config
-		this.sidebarEl = this.parentContainer.createDiv("chess-sidebar")
-		this.moveListContainer = this.sidebarEl.createDiv("chess-sidebar-section")
+		this.sidebarEl = this.parentContainer.createDiv('chess-sidebar')
+		this.moveListContainer = this.sidebarEl.createDiv('chess-sidebar-section')
 
 		this.redrawMoveList()
 		this.createToolbar()
@@ -25,7 +25,7 @@ export default class Sidebar {
 
 	private createToolbar() {
 		if(!this.config.showToolbar) { return }
-		this.toolbar = this.sidebarEl.createDiv("chess-toolbar")
+		this.toolbar = this.sidebarEl.createDiv('chess-toolbar')
 		this.createPreviousMoveButton()
 		this.createNextMoveButton()
 		this.createFlipBoardButton()
@@ -34,12 +34,12 @@ export default class Sidebar {
 	}
 
 	private createPreviousMoveButton() {
-		this.toolbar.createEl("a", "view-action", (btn: HTMLAnchorElement) => {
+		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
 
-			btn.ariaLabel = "Previous Move"
-			setIcon(btn, "left-arrow")
+			btn.ariaLabel = 'Previous Move'
+			setIcon(btn, 'left-arrow')
 
-			btn.addEventListener("click", (e: MouseEvent) => {
+			btn.addEventListener('click', (e: MouseEvent) => {
 				e.preventDefault()
 				this.view.previousMove()
 			})
@@ -47,12 +47,12 @@ export default class Sidebar {
 	}
 
 	private createNextMoveButton() {
-		this.toolbar.createEl("a", "view-action", (btn: HTMLAnchorElement) => {
+		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
 
-			btn.ariaLabel = "Next Move"
-			setIcon(btn, "right-arrow")
+			btn.ariaLabel = 'Next Move'
+			setIcon(btn, 'right-arrow')
 
-			btn.addEventListener("click", (e: MouseEvent) => {
+			btn.addEventListener('click', (e: MouseEvent) => {
 				e.preventDefault()
 				this.view.nextMove()
 			})
@@ -60,12 +60,12 @@ export default class Sidebar {
 	}
 
 	private createResetButton() {
-		this.toolbar.createEl("a", "view-action", (btn: HTMLAnchorElement) => {
+		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
 			
-			btn.ariaLabel = "Reset"
-			setIcon(btn, "restore-file-glyph")
+			btn.ariaLabel = 'Reset'
+			setIcon(btn, 'restore-file-glyph')
 			
-			btn.addEventListener("click", (e: MouseEvent) => {
+			btn.addEventListener('click', (e: MouseEvent) => {
 				e.preventDefault()
 				this.view.loadMoveList()
 				this.view.setMoveIndex(-1)
@@ -74,12 +74,12 @@ export default class Sidebar {
 	}
 
 	private createFlipBoardButton() {
-		this.toolbar.createEl("a", "view-action", (btn: HTMLAnchorElement) => {
+		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
 			
-			btn.ariaLabel = "Flip board"
-			setIcon(btn, "switch")
+			btn.ariaLabel = 'Flip board'
+			setIcon(btn, 'switch')
 
-			btn.addEventListener("click", (e: MouseEvent) => {
+			btn.addEventListener('click', (e: MouseEvent) => {
 				e.preventDefault()
 				this.view.flipBoard()
 			})
@@ -87,12 +87,12 @@ export default class Sidebar {
 	}
 
 	private createToggleSidebarButton() {
-		this.toolbar.createEl("a", "view-action", (btn: HTMLAnchorElement) => {
+		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
 
-			btn.ariaLabel = "Toggle Sidebar"
-			setIcon(btn, "menu")
+			btn.ariaLabel = 'Toggle Sidebar'
+			setIcon(btn, 'menu')
 
-			btn.addEventListener("click", (e: MouseEvent) => {
+			btn.addEventListener('click', (e: MouseEvent) => {
 				e.preventDefault()
 				this.parentContainer.addClass('no-menu')
 			})
@@ -106,12 +106,12 @@ export default class Sidebar {
 		this.createTitle()
 		
 		let activeMoveEl: HTMLElement | null = null
-		this.moveListEl = this.moveListContainer.createDiv("chess-move-list")
+		this.moveListEl = this.moveListContainer.createDiv('chess-move-list')
 		
 		this.view.history().forEach((move, idx) => {
 			const moveEl = this.moveListEl.createDiv({
 				cls: `chess-move ${
-					this.view.currentMoveIndex === idx ? "chess-move-active" : ""
+					this.view.currentMoveIndex === idx ? 'chess-move-active' : ''
 				}`,
 			})
 			
@@ -124,7 +124,7 @@ export default class Sidebar {
 				text: move.san,
 			})
 
-			moveEl.addEventListener("click", (ev) => {
+			moveEl.addEventListener('click', (ev) => {
 				ev.preventDefault()
 				this.view.setMoveIndex(idx)
 			})
@@ -143,16 +143,16 @@ export default class Sidebar {
 			if(gameResult) {
 				title = this.view.getResultText(gameResult)
 			} else if(this.view.isMate()) {
-				title = (this.view.turn() === "b" ? "White wins" : "Black wins")
+				title = (this.view.turn() === 'b' ? 'White wins' : 'Black wins')
 			}
 			
 		} else {
-			title = (this.view.turn() === "b" ? "Black's turn" : "White's turn")
+			title = (this.view.turn() === 'b' ? "Black's turn" : "White's turn")
 		}
 		
 		this.moveListContainer.createDiv({
 			text: title,
-			cls: "chess-sidebar-title",
+			cls: 'chess-sidebar-title',
 		})
 	}
 
