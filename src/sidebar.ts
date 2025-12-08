@@ -1,10 +1,5 @@
 import { setIcon, Setting } from "obsidian"
-import { ChessView, AnnotatedMove } from "./view"
-import {
-	resultAnnotationRegex,
-	getAnnotationClass,
-	getAnnotationTooltip,
-} from "./annotations"
+import { ChessView, AnnotatedMove, GameResult } from "./view"
 import { Config } from "./config"
 
 export default class Sidebar {
@@ -105,17 +100,10 @@ export default class Sidebar {
 	}
 
 	public redrawMoveList() {
-		const isLastMove = this.view.currentMoveIndex === this.view.history().length - 1
-		const gameResult = this.view.getGameResult()
-		
 		const previousScrollPosition = this.moveListEl?.scrollTop
 		
 		this.moveListContainer.empty()
-		this.moveListContainer.createDiv({
-			text: isLastMove && gameResult ? gameResult :
-				  (this.view.turn() === "b" ? "Black's turn" : "White's turn"),
-			cls: "chess-turn-text",
-		})
+		this.createTitle()
 		
 		let activeMoveEl: HTMLElement | null = null
 		this.moveListEl = this.moveListContainer.createDiv("chess-move-list")
@@ -143,31 +131,55 @@ export default class Sidebar {
 			this.addMoveAnnotation(move, moveEl)
 		})
 		
-		if(this.view.currentMoveIndex == -1) {
-			// Always scroll move list to the top on Reset Board
-			this.moveListEl.scrollTop = 0
-		} else if(isLastMove) {
-			// Always scroll all the way down on last move
-			setTimeout(() => { this.moveListEl.scrollTop = this.moveListEl.scrollHeight }, 50)
+		this.restoreScrollPosition(activeMoveEl, previousScrollPosition ?? 0)
+	}
+
+	private createTitle() {
+		const isLastMove = this.view.currentMoveIndex === this.view.history().length - 1
+		const gameResult = this.view.getGameResult()
+		
+		let title = ''
+		if(isLastMove) {
+			if(gameResult) {
+				title = this.view.getResultText(gameResult)
+			} else if(this.view.isMate()) {
+				title = (this.view.turn() === "b" ? "White wins" : "Black wins")
+			}
+			
 		} else {
-			this.restoreScrollPosition(activeMoveEl, previousScrollPosition ?? 0)
+			title = (this.view.turn() === "b" ? "Black's turn" : "White's turn")
 		}
+		
+		this.moveListContainer.createDiv({
+			text: title,
+			cls: "chess-sidebar-title",
+		})
 	}
 
 	private addMoveAnnotation(move: AnnotatedMove, moveEl: HTMLElement) {
-		if(!this.config.showAnnotations) { return }
+		if(!this.config.showAnnotations || !move.annotation) { return }
 		
-		// Mate symbol is included in SAN
-		if (move.annotation && move.san.charAt(move.san.length-1) != '#') { 
-			const annotationClass = getAnnotationClass(move.annotation)
-			moveEl.createSpan({
-				cls: `chess-move-annotation chess-move-annotation-${annotationClass}`,
-				text: (resultAnnotationRegex.test(move.annotation) ? " " : "") + move.annotation,
-			})
-		}
+		moveEl.createSpan({
+			cls: `chess-move-annotation chess-move-annotation-${move.annotation}`,
+			text: `${move.annotation.getGlyph()}`,
+		})
 	}
 
 	private restoreScrollPosition(activeMoveEl: HTMLElement | null, position: number) {
+		
+		// Scroll move list to the top on Reset Board
+		if(this.view.currentMoveIndex == -1) {
+			this.moveListEl.scrollTop = 0
+			return
+		}
+
+		// Always scroll all the way down on last move
+		const isLastMove = this.view.currentMoveIndex === this.view.history().length - 1
+		if(isLastMove) {
+			setTimeout(() => { this.moveListEl.scrollTop = this.moveListEl.scrollHeight }, 50)
+			return
+		}
+
 		this.moveListEl.scrollTop = position
 		
 		if (activeMoveEl) {
@@ -197,4 +209,5 @@ export default class Sidebar {
 		})
 		resizeObserver.observe(boardEl)
 	}
+
 }

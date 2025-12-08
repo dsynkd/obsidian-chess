@@ -4,54 +4,96 @@ import greatIcon from "../assets/analysis-icon/great.svg"
 import mistakeIcon from "../assets/analysis-icon/mistake.svg"
 import inaccuracyIcon from "../assets/analysis-icon/inaccuracy.svg"
 import blunderIcon from "../assets/analysis-icon/blunder.svg"
-import checkmateIcon from "../assets/analysis-icon/checkmate.svg"
+import interestingIcon from "../assets/analysis-icon/interesting.svg"
+import blackCheckmateIcon from "../assets/analysis-icon/checkmate_black.svg"
+import whiteCheckmateIcon from "../assets/analysis-icon/checkmate_white.svg"
 import whiteResignsIcon from "../assets/analysis-icon/resign_white.svg"
 import blackResignsIcon from "../assets/analysis-icon/resign_black.svg"
 import whiteDrawIcon from "../assets/analysis-icon/draw_white.svg"
 import blackDrawIcon from "../assets/analysis-icon/draw_black.svg"
 import winnerIcon from "../assets/analysis-icon/winner.svg"
 
-export type MoveAnnotation = "!!" | "!" | "?!" | "?" | "??" | "#" | "1-0" | "0-1" | "1/2-1/2"
-
-export const sanRegex = /([BRQNK][a-h][1-8]|[BRQNK][a-h]x[a-h][1-8]|[BRQNK][a-h][1-8]x[a-h][1-8]|[BRQNK][a-h][1-8][a-h][1-8]|[BRQNK][a-h][a-h][1-8]|[BRQNK]x[a-h][1-8]|[a-h]x[a-h][1-8]=(B+R+Q+N)|[a-h]x[a-h][1-8]|[a-h][1-8]x[a-h][1-8]=(B+R+Q+N)|[a-h][1-8]x[a-h][1-8]|[a-h][1-8][a-h][1-8]=(B+R+Q+N)|[a-h][1-8][a-h][1-8]|[a-h][1-8]=(B+R+Q+N)|[a-h][1-8]|[BRQNK][1-8]x[a-h][1-8]|[BRQNK][1-8][a-h][1-8]|O-O|O-O-O)\+?/g
-
-export const annotationRegex = /(\?\?|\?\!|!!|!|\?|#)/
-export const resultAnnotationRegex = /(1-0|0-1|1\/2-1\/2)/
-
-export function getAnnotationClass(annotation: MoveAnnotation): string {
-    switch (annotation) {
-        case "!!": return "brilliant"
-        case "!": return "great"
-        case "?!": return "inaccuracy"
-        case "?": return "mistake"
-        case "??": return "blunder"
-        case "#": return "checkmate"
-    }
+enum MoveClass {
+    great = 1,
+    mistake = 2,
+    brilliant = 3,
+    blunder = 4,
+    interesting = 5,
+    inaccuracy = 6
 }
 
-export function getAnnotationIcon(annotation: MoveAnnotation): string | [string, string] {
-    switch (annotation) {
-        case "!!": return brilliantIcon
-        case "!": return greatIcon
-        case "?!": return inaccuracyIcon
-        case "?": return mistakeIcon
-        case "??": return blunderIcon
-        case "#": return [checkmateIcon, winnerIcon]
-        case "1-0": return [blackResignsIcon, winnerIcon]
-        case "0-1": return [whiteResignsIcon, winnerIcon]
-        case "1/2-1/2": return [whiteDrawIcon, blackDrawIcon]
-    }
-}
+export class MoveAnnotation {
 
-export function getAnnotationTooltip(annotation: MoveAnnotation): string | [string, string] {
-    if(annotation == "1-0") {
-        return ["Black resigns", "White wins"]
+    private glyph: MoveClass
+    
+    constructor(nag: number) {
+        this.glyph = nag as MoveClass
     }
-    if(annotation == "0-1") {
-        return ["White resigns", "Black wins"]
+
+    toString(): string {
+        switch (this.glyph) {
+            case MoveClass.great: return 'great'
+            case MoveClass.mistake: return 'mistake'
+            case MoveClass.brilliant: return 'brilliant'
+            case MoveClass.blunder: return 'blunder'
+            case MoveClass.interesting: return 'good'
+            case MoveClass.inaccuracy: return 'inaccuracy'
+        }
     }
-    if(annotation == "1/2-1/2") {
-        return "Draw"
+
+    public getIcon(): string {
+        switch (this.glyph) {
+            case MoveClass.great: return greatIcon
+            case MoveClass.mistake: return mistakeIcon
+            case MoveClass.brilliant: return brilliantIcon
+            case MoveClass.blunder: return blunderIcon
+            case MoveClass.interesting: return interestingIcon
+            case MoveClass.inaccuracy: return inaccuracyIcon
+        }
     }
-    return annotation[0].toUpperCase() + annotation.slice(1)
+
+    public getGlyph(): string {
+        switch (this.glyph) {
+            case MoveClass.great: return '!'
+            case MoveClass.mistake: return '?'
+            case MoveClass.brilliant: return '!!'
+            case MoveClass.blunder: return '??'
+            case MoveClass.interesting: return '!?'
+            case MoveClass.inaccuracy: return '?!'
+        }
+    }
+
+    public getTooltip(): string {
+        const str = this.toString()
+        return str[0].toUpperCase() + str.slice(1)
+    }
+
+
+    static getWinnerIcon(): string {
+        return winnerIcon
+    }
+
+    static getBlackCheckmateIcon(): string {
+        return blackCheckmateIcon
+    }
+
+    static getWhiteCheckmateIcon(): string {
+        return whiteCheckmateIcon
+    }
+
+    static getWhiteResignsIcon(): string {
+        return whiteResignsIcon
+    }
+
+    static getBlackResignsIcon(): string {
+        return blackResignsIcon
+    }
+
+    static getWhiteDrawIcon(): string {
+        return whiteDrawIcon
+    }
+
+    static getBlackDrawIcon(): string {
+        return blackDrawIcon
+    }
 }

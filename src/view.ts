@@ -9,25 +9,23 @@ import { Chess, Move, SQUARES } from "chess.js"
 import { Chessground } from "chessground"
 import { Api } from "chessground/api"
 import { Color, Key } from "chessground/types"
+import { Game, parsePgn, PgnNodeData } from "chessops/pgn"
 
 import { presentError } from "./main"
 import { Config } from "./config"
-import { 
-	sanRegex,
-	annotationRegex,
-	resultAnnotationRegex,
-	MoveAnnotation,
-	getAnnotationIcon,
-	getAnnotationClass,
-	getAnnotationTooltip,
-} from "./annotations"
+import { MoveAnnotation } from "./annotations"
 import Sidebar from "./sidebar"
 import { playMoveSound, playCaptureSound } from "./sounds"
 import "./styles"
 
-
 export type AnnotatedMove = Move & {
 	annotation?: MoveAnnotation
+}
+
+export enum GameResult {
+	WhiteWins = '1-0',
+	BlackWins = '0-1',
+	Draw = '1/2-1/2'
 }
 
 export class ChessView extends MarkdownRenderChild {
@@ -39,7 +37,7 @@ export class ChessView extends MarkdownRenderChild {
 	private moves: AnnotatedMove[]
 	private config: Config
 	private mainEl: HTMLElement
-	private gameResult: string | undefined
+	private gameResult: GameResult
 
 	public currentMoveIndex: number
 
@@ -57,83 +55,71 @@ export class ChessView extends MarkdownRenderChild {
 		this.config = config
 		this.mainEl = this.containerEl.createDiv()
 		
-		if(!this.loadMoveList()) { return }
-
-		this.setupChessground()
-		this.applyCoordinates()
-		this.applyStyles()
-		this.setupSidebar()
-		this.setupToggleSidebarButton()
-		this.setupKeyboardShortcuts()
+		try {
+			this.loadMoveList()
+			this.setupChessground()
+			this.applyCoordinates()
+			this.applyStyles()
+			this.setupSidebar()
+			this.setupToggleSidebarButton()
+			this.setupKeyboardShortcuts()
+		} catch(e) {
+			this.presentError(e.message ?? e)
+		}
 	}
 
 	public loadMoveList() {
 		if (this.config.pgn && this.config.fen) {
-			this.presentError("Both FEN and PGN detected.")
-			return false
+			throw "Both FEN and PGN detected."
 		}
-		else if (this.config.pgn) {
-			try {
-				this.chess.loadPgn(this.config.pgn)
-			} catch (error) {
-				this.presentError(error.message)
-				return false
-			}
+
+		if (this.config.pgn) {
+			this.chess.loadPgn(this.config.pgn)
 		}
 		else if (this.config.fen) {
-			try {
-				this.chess.load(this.config.fen)
-			} catch (error) {
-				this.presentError(error.message)
-				return false
-			}
+			this.chess.load(this.config.fen)
 		}
 		else {
-			this.presentError("No FEN or PGN found.")
-			return false
+			throw "No FEN or PGN found."
 		}
 
 		this.moves = this.chess.history({ verbose: true })
 		this.currentMoveIndex = this.moves.length - 1
 		this.loadAnnotations()
-		return true
 	}
 
-	private loadAnnotations(): AnnotatedMove[] {
+	private loadAnnotations() {
 		if(!this.config.showAnnotations || !this.config.pgn) { return }
 
-		const pgn = this.config.pgn
-		const matches = [...pgn.matchAll(sanRegex)]
-		
-		matches.forEach((match, index) => {
-			let annotationIndex = match.index + match[0].length
-			const annotationMatch = pgn.slice(annotationIndex, annotationIndex+2).match(annotationRegex)
+		const game = parsePgn(this.config.pgn)[0]
+		this.loadGameResult(game)
 
-			if(annotationMatch) {
-				const annotation = annotationMatch[0] as MoveAnnotation
-				this.moves[index].annotation = annotation
-				if(annotation === "#") {
-					this.gameResult = this.moves[index].color == "w" ? "White wins" : "Black wins"
-				}
-			} // Check for result annotation in the last move
-			else if(index == matches.length-1) {
-				// Edge case where PGN doesn't contain checkmate annotation but it is actually a mate
-				if(this.moves[index].san.endsWith('#')) {
-					this.moves[index].annotation = '#'
-					this.gameResult = this.moves[index].color == "w" ? "White wins" : "Black wins"
-				} else {
-					this.loadResultAnnotation(pgn.slice(annotationIndex, pgn.length).trim(), index)
-				}
+		let currentMove = game.moves.children[0]
+		let index = 0
+		while(currentMove) {
+			const nag = currentMove.data.nags
+			if(nag) {
+				this.moves[index].annotation = new MoveAnnotation(nag[0])
 			}
-		})
+			currentMove = currentMove.children[0]
+			index += 1
+		}
 	}
 
-	private loadResultAnnotation(result: string, index: number) {
-		const resultMatch = result.match(resultAnnotationRegex)
-		if(resultMatch) {
-			const annotation = resultMatch[0] as MoveAnnotation
-			this.moves[index].annotation = annotation
-			this.setGameResult(annotation)
+	private loadGameResult(game: Game<PgnNodeData>) {
+		const result = game.headers.get('Result').trim()
+		switch (result) {
+			case '1-0':
+				this.gameResult = GameResult.WhiteWins
+				break
+			case '0-1':
+				this.gameResult = GameResult.BlackWins
+				break
+			case '1/2-1/2':
+				this.gameResult = GameResult.Draw
+				break
+			default:
+				this.gameResult = null
 		}
 	}
 
@@ -155,7 +141,7 @@ export class ChessView extends MarkdownRenderChild {
 				move: (orig: any, dest: any) => {
 					const move = this.chess.move({ from: orig, to: dest })
 					this.currentMoveIndex++
-					this.moves = [...this.moves.slice(0, this.currentMoveIndex), { ...move, annotation: null as MoveAnnotation } as AnnotatedMove]
+					this.moves = [...this.moves.slice(0, this.currentMoveIndex), move]
 					this.playSound(move)
 					this.syncBoard()
 				},
@@ -192,9 +178,7 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private setupToggleSidebarButton() {
-		if (!this.config.showSidebar) {
-			return
-		}
+		if (!this.config.showSidebar) { return }
 
 		const toggleBtn = this.mainEl.createEl("a", "chess-toggle-sidebar-btn")
 		toggleBtn.ariaLabel = "Toggle Sidebar"
@@ -282,56 +266,48 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private setAnnotationIcon(move: AnnotatedMove) {
-		const annotation = move.annotation
-		if(!annotation) { return }
+		const isLastMove = this.currentMoveIndex === this.history().length - 1
 
-		const icon = getAnnotationIcon(annotation)
-		const tooltip = getAnnotationTooltip(annotation)
-		const lastMoveSquareEl = this.mainEl.querySelector(`square.last-move`)
-		
-		const boardEl = this.containerEl.querySelector('.cg-wrap')
-		const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
-		const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
-		
-		if(annotation == "#" && typeof(tooltip) == "string") {
-			const checkmateIcon = icon[0]
-			const winnerIcon = icon[1]
+		if(isLastMove) {
+			const boardEl = this.containerEl.querySelector('.cg-wrap')
+			const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
+			const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
+			const winnerIcon = MoveAnnotation.getWinnerIcon()
 
-			if(move.color == "w") {
-				this.addAnnotationIcon(blackKingSquareEl, checkmateIcon, tooltip)
-				this.addAnnotationIcon(lastMoveSquareEl, winnerIcon, "White Wins")
-			} else {
-				this.addAnnotationIcon(whiteKingSquareEl, checkmateIcon, tooltip)
-				this.addAnnotationIcon(lastMoveSquareEl, winnerIcon, "Black Wins")
+			if(move.san[move.san.length-1] == '#') {
+				
+				if(move.color == "w") {
+					const checkmateIcon = MoveAnnotation.getBlackCheckmateIcon()
+					this.addAnnotationIcon(blackKingSquareEl, checkmateIcon, "Checkmate")
+					this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, "White Wins")
+				} else {
+					const checkmateIcon = MoveAnnotation.getWhiteCheckmateIcon()
+					this.addAnnotationIcon(whiteKingSquareEl, checkmateIcon, "Checkmate")
+					this.addAnnotationIcon(blackKingSquareEl, winnerIcon, "Black Wins")
+				}
+			}
+			else if(this.gameResult == GameResult.WhiteWins) {
+				const blackResignsIcon = MoveAnnotation.getBlackResignsIcon()
+				this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, "White Wins")
+				this.addAnnotationIcon(blackKingSquareEl, blackResignsIcon, "Black Resigns")
+			}
+			else if(this.gameResult == GameResult.BlackWins) {
+				const whiteResignsIcon = MoveAnnotation.getWhiteResignsIcon()
+				this.addAnnotationIcon(whiteKingSquareEl, whiteResignsIcon, "White Wins")
+				this.addAnnotationIcon(blackKingSquareEl, winnerIcon, "Black Resigns")
+			}
+			else if(this.gameResult == GameResult.Draw) {
+				const blackDrawIcon = MoveAnnotation.getBlackDrawIcon()
+				const whiteDrawIcon = MoveAnnotation.getWhiteDrawIcon()
+				this.addAnnotationIcon(whiteKingSquareEl, whiteDrawIcon, "Draw")
+				this.addAnnotationIcon(blackKingSquareEl, blackDrawIcon, "Draw")
 			}
 		}
-		else if(annotation == "1-0") {
-			const blackResignsIcon = icon[0]
-			const winnerIcon = icon[1]
-			const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
-			const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
-			this.addAnnotationIcon(whiteKingSquareEl, winnerIcon, tooltip[0])
-			this.addAnnotationIcon(blackKingSquareEl, blackResignsIcon, tooltip[1])
-		}
-		else if(annotation == "0-1") {
-			const whiteResignsIcon = icon[0]
-			const winnerIcon = icon[1]
-			const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
-			const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
-			this.addAnnotationIcon(whiteKingSquareEl, whiteResignsIcon, tooltip[0])
-			this.addAnnotationIcon(blackKingSquareEl, winnerIcon, tooltip[1])
-		}
-		else if(annotation == "1/2-1/2" && typeof(tooltip) == "string") {
-			const whiteDrawIcon = icon[0]
-			const blackDrawIcon = icon[1]
-			const whiteKingSquareEl = boardEl.querySelector(`piece.white.king`)
-			const blackKingSquareEl = boardEl.querySelector(`piece.black.king`)
-			this.addAnnotationIcon(whiteKingSquareEl, whiteDrawIcon, tooltip)
-			this.addAnnotationIcon(blackKingSquareEl, blackDrawIcon, tooltip)
-		}
-		else if(typeof(tooltip) == "string" && typeof(icon) == "string") {
-			this.addAnnotationIcon(lastMoveSquareEl, icon, tooltip)
-		}
+
+		if(!move.annotation) { return }
+		
+		const lastMoveSquareEl = this.mainEl.querySelector(`square.last-move`)
+		this.addAnnotationIcon(lastMoveSquareEl, move.annotation.getIcon(), move.annotation.getTooltip())
 	}
 
 	private addAnnotationIcon(squareEl: Element, icon: string, tooltip: string) {
@@ -340,9 +316,9 @@ export class ChessView extends MarkdownRenderChild {
 		// Calculate icon position relative
 		const childRect = squareEl.getBoundingClientRect()
  		const parentRect = this.mainEl.getBoundingClientRect()
-		const rightPadding = 9
-		const rightPosition = parentRect.right - childRect.right - rightPadding
-		const topPosition = childRect.top - parentRect.top
+		const offset = 9 // Icons are 18x18 offset should be half that amount
+		const rightPosition = parentRect.right - childRect.right - offset
+		const topPosition = childRect.top - parentRect.top - offset
 
 		iconEl.className = `chess-annotation-icon`
 		iconEl.style.right = `${rightPosition}px`
@@ -418,6 +394,11 @@ export class ChessView extends MarkdownRenderChild {
 		this.playSound(this.moves[this.currentMoveIndex])
 	}
 
+	public isMate() {
+		const currentMove = this.moves[this.currentMoveIndex]
+		return currentMove.san[currentMove.san.length-1] === '#'
+	}
+
 	public turn() {
 		return this.chess.turn()
 	}
@@ -438,13 +419,16 @@ export class ChessView extends MarkdownRenderChild {
 		return this.chess.fen()
 	}
 
-	private setGameResult(annotation: MoveAnnotation) {
-		let tooltip = getAnnotationTooltip(annotation)
-		this.gameResult = typeof(tooltip) == "string" ? tooltip : tooltip[0]
+	public getGameResult(): GameResult {
+		return this.gameResult
 	}
 
-	public getGameResult(): string | undefined {
-		return this.gameResult
+	public getResultText(result: GameResult): string {
+		switch (result) {
+			case GameResult.WhiteWins: return "White wins"
+			case GameResult.BlackWins: return "Black wins"
+			case GameResult.Draw: return "Draw"
+		}
 	}
 
 	private playSound(move: Move): void {
