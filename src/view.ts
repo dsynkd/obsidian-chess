@@ -142,7 +142,7 @@ export class ChessView extends MarkdownRenderChild {
 					this.currentMoveIndex++
 					this.moves = [...this.moves.slice(0, this.currentMoveIndex), move]
 					this.playSound(move)
-					this.syncBoard()
+					this.updateBoard()
 				},
 			}
 		})
@@ -232,7 +232,7 @@ export class ChessView extends MarkdownRenderChild {
 		}, true) // Use capture phase to catch clicks early
 	}
 
-	private syncBoard() {
+	private updateBoard() {
 		this.cg.set({
 			check: this.chess.inCheck(),
 			turnColor: this.getTurnColor(),
@@ -247,7 +247,8 @@ export class ChessView extends MarkdownRenderChild {
 		setTimeout(() => { this.updateBoardAnnotations() }, 50)
 
 		if (this.sidebar) {
-			this.sidebar.redrawMoveList()
+			// Reload move list
+			this.sidebar.createMoveList()
 		}
 	}
 
@@ -371,7 +372,7 @@ export class ChessView extends MarkdownRenderChild {
 			lastMove,
 		})
 		
-		this.syncBoard()
+		this.updateBoard()
 	}
 
 	public getTurnColor(): Color {

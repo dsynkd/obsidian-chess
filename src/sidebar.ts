@@ -1,15 +1,17 @@
-import { setIcon } from 'obsidian'
 import { ChessView, AnnotatedMove } from './view'
 import { Config } from './config'
+import Toolbar from './toolbar'
+import { Platform } from 'obsidian'
 
 export default class Sidebar {
 	private view: ChessView
 	private sidebarEl: HTMLElement
 	private moveListContainer: HTMLElement
 	private moveListEl: HTMLElement
-	private toolbar: HTMLElement | null
+	private toolbar?: Toolbar
 	private parentContainer: HTMLElement
 	private config: Config
+	private activeMoveEl?: HTMLElement
 
 	constructor(parentEl: HTMLElement, view: ChessView, config: Config) {
 		this.view = view
@@ -18,120 +20,54 @@ export default class Sidebar {
 		this.sidebarEl = this.parentContainer.createDiv('chess-sidebar')
 		this.moveListContainer = this.sidebarEl.createDiv('chess-sidebar-section')
 
-		this.redrawMoveList()
+		this.createMoveList()
 		this.createToolbar()
 		this.setupResizeObserver()
+		setTimeout(() => {this.restoreScrollPosition(this.moveListEl.scrollHeight)}, 50)
 	}
 
 	private createToolbar() {
-		if(!this.config.showToolbar) { return }
-		this.toolbar = this.sidebarEl.createDiv('chess-toolbar')
-		this.createPreviousMoveButton()
-		this.createNextMoveButton()
-		this.createFlipBoardButton()
-		this.createResetButton()
-		this.createToggleSidebarButton()
+		if (!this.config.showToolbar || Platform.isMobile) {
+			return
+		}
+		this.toolbar = new Toolbar(this.sidebarEl, this.view)
+		this.updateButtonStates()
 	}
 
-	private createPreviousMoveButton() {
-		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-
-			btn.ariaLabel = 'Previous Move'
-			setIcon(btn, 'left-arrow')
-
-			btn.addEventListener('click', (e: MouseEvent) => {
-				e.preventDefault()
-				this.view.previousMove()
-			})
-		})
-	}
-
-	private createNextMoveButton() {
-		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-
-			btn.ariaLabel = 'Next Move'
-			setIcon(btn, 'right-arrow')
-
-			btn.addEventListener('click', (e: MouseEvent) => {
-				e.preventDefault()
-				this.view.nextMove()
-			})
-		})
-	}
-
-	private createResetButton() {
-		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-			
-			btn.ariaLabel = 'Reset'
-			setIcon(btn, 'restore-file-glyph')
-			
-			btn.addEventListener('click', (e: MouseEvent) => {
-				e.preventDefault()
-				this.view.loadMoveList()
-				this.view.setMoveIndex(-1)
-			})
-		})
-	}
-
-	private createFlipBoardButton() {
-		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-			
-			btn.ariaLabel = 'Flip board'
-			setIcon(btn, 'switch')
-
-			btn.addEventListener('click', (e: MouseEvent) => {
-				e.preventDefault()
-				this.view.flipBoard()
-			})
-		})
-	}
-
-	private createToggleSidebarButton() {
-		this.toolbar.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-
-			btn.ariaLabel = 'Toggle Sidebar'
-			setIcon(btn, 'menu')
-
-			btn.addEventListener('click', (e: MouseEvent) => {
-				e.preventDefault()
-				this.parentContainer.addClass('no-menu')
-			})
-		})
-	}
-
-	public redrawMoveList() {
+	public createMoveList() {
 		const previousScrollPosition = this.moveListEl?.scrollTop
 		
 		this.moveListContainer.empty()
 		this.createTitle()
 		
-		let activeMoveEl: HTMLElement | null = null
 		this.moveListEl = this.moveListContainer.createDiv('chess-move-list')
 		
-		this.view.history().forEach((move, idx) => {
-			const moveEl = this.moveListEl.createDiv({
-				cls: `chess-move ${
-					this.view.currentMoveIndex === idx ? 'chess-move-active' : ''
-				}`,
-			})
+		this.view.history().forEach((move, index) => {
+			const moveEl = this.moveListEl.createDiv('chess-move')
 			
-			// Track the active move element
-			if (this.view.currentMoveIndex === idx) {
-				activeMoveEl = moveEl
+			if (this.view.currentMoveIndex === index) {
+				moveEl.addClass('chess-move-active')
+				this.activeMoveEl = moveEl
 			}
 			
-			moveEl.createSpan({
-				text: move.san,
-			})
-
-			moveEl.addEventListener('click', (ev) => {
-				ev.preventDefault()
-				this.view.setMoveIndex(idx)
-			})
+			this.createMoveText(moveEl, move.san)
+			this.setMoveClickListener(moveEl, index)
 			this.addMoveAnnotation(move, moveEl)
 		})
 		
-		this.restoreScrollPosition(activeMoveEl, previousScrollPosition ?? 0)
+		this.restoreScrollPosition(previousScrollPosition ?? 0)
+		this.updateButtonStates()
+	}
+
+	private createMoveText(moveEl: HTMLElement, text: string) {
+		moveEl.createSpan({ text: text })
+	}
+
+	private setMoveClickListener(moveEl: HTMLElement, moveIndex: number) {
+		moveEl.addEventListener('click', (ev) => {
+			ev.preventDefault()
+			this.view.setMoveIndex(moveIndex)
+		})
 	}
 
 	private createTitle() {
@@ -165,7 +101,7 @@ export default class Sidebar {
 		})
 	}
 
-	private restoreScrollPosition(activeMoveEl: HTMLElement | null, position: number) {
+	private restoreScrollPosition(position: number) {
 		
 		// Scroll move list to the top on Reset Board
 		if(this.view.currentMoveIndex == -1) {
@@ -173,30 +109,35 @@ export default class Sidebar {
 			return
 		}
 
-		// Always scroll all the way down on last move
-		const isLastMove = this.view.currentMoveIndex === this.view.history().length - 1
-		if(isLastMove) {
-			setTimeout(() => { this.moveListEl.scrollTop = this.moveListEl.scrollHeight }, 50)
-			return
-		}
-
 		this.moveListEl.scrollTop = position
 		
-		if (activeMoveEl) {
+		if (this.activeMoveEl) {
 			// Use requestAnimationFrame to ensure DOM is fully rendered
 			requestAnimationFrame(() => {
 				const containerRect = this.moveListEl.getBoundingClientRect()
-				const moveRect = activeMoveEl!.getBoundingClientRect()
+				const moveRect = this.activeMoveEl!.getBoundingClientRect()
 				
 				// Check if move is outside visible area
 				const isAboveViewport = moveRect.bottom < containerRect.top
 				const isBelowViewport = moveRect.top > containerRect.bottom
 				
 				if (isAboveViewport || isBelowViewport) {
-					activeMoveEl!.scrollIntoView({ behavior: 'instant', block: 'nearest' })
+					this.activeMoveEl!.scrollIntoView({ behavior: 'instant', block: 'nearest' })
 				}
 			})
 		}
+	}
+
+	private updateButtonStates() {
+		if (!this.toolbar) { return }
+		
+		const history = this.view.history()
+		const currentIndex = this.view.currentMoveIndex
+		const isFirstMove = currentIndex === -1
+		const isLastMove = currentIndex === history.length - 1
+		
+		this.toolbar.previousButton.toggleClass('is-disabled', isFirstMove)
+		this.toolbar.nextButton.toggleClass('is-disabled', isLastMove)
 	}
 
 	private setupResizeObserver() {

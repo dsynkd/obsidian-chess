@@ -104,6 +104,12 @@ div.cg-wrap {
 	display: grid;
 	grid-template-columns: repeat(5, 1fr);
 	gap: 8px;
+	
+	& a.is-disabled {
+		cursor: default;
+		pointer-events: none;
+		opacity: 0.4;
+	}
 }
 
 .chess-sidebar-title {
