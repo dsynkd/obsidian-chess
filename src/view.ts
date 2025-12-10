@@ -1,9 +1,10 @@
 import {
 	App,
 	MarkdownPostProcessorContext,
-	MarkdownRenderChild
+	MarkdownRenderChild,
+	setIcon,
+	Platform
 } from 'obsidian'
-import { setIcon } from 'obsidian'
 import { Chess, Move, SQUARES } from 'chess.js'
 import { Chessground } from 'chessground'
 import { Api } from 'chessground/api'
@@ -14,6 +15,7 @@ import { presentError } from './main'
 import { Config } from './config'
 import { MoveAnnotation } from './annotations'
 import Sidebar from './sidebar'
+import Toolbar from './toolbar'
 import { playMoveSound, playCaptureSound } from './sounds'
 import './styles'
 
@@ -32,7 +34,8 @@ export class ChessView extends MarkdownRenderChild {
 	private app: App
 	private cg: Api
 	private chess: Chess
-	private sidebar: Sidebar
+	private sidebar?: Sidebar
+	private toolbar?: Toolbar
 	private moves: AnnotatedMove[]
 	private config: Config
 	private mainEl: HTMLElement
@@ -60,8 +63,9 @@ export class ChessView extends MarkdownRenderChild {
 			this.applyCoordinates()
 			this.applyStyles()
 			this.setupSidebar()
-			this.setupToggleSidebarButton()
+			this.setupToolbar()
 			this.setupKeyboardShortcuts()
+			this.setupResizeObserver()
 		} catch(e) {
 			this.presentError(e.message ?? e)
 		}
@@ -156,6 +160,7 @@ export class ChessView extends MarkdownRenderChild {
 
 	private applyStyles() {
 		this.containerEl.addClass('chess-view-container')
+
 		if(this.config.showAnnotations) {
 			this.containerEl.addClass('has-annotations')
 		}
@@ -169,15 +174,26 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private setupSidebar() {
-		if (this.config.showSidebar) {
-			this.sidebar = new Sidebar(this.mainEl, this, this.config)
-		} else {
-			this.mainEl.addClass('no-menu')
+		if (!this.config.showSidebar) {
+			this.containerEl.addClass('no-sidebar')
+			return
 		}
+		this.sidebar = new Sidebar(this.mainEl, this, this.config)
+		this.setupToggleSidebarButton()
+	}
+
+	private setupToolbar() {
+		if (this.sidebar && !Platform.isMobile) {
+			this.toolbar = this.sidebar.toolbar
+		} else if(this.config.showToolbar) {
+			this.toolbar = new Toolbar(this.containerEl, this, this.config)
+		}
+		
+		this.updateToolbar()
 	}
 
 	private setupToggleSidebarButton() {
-		if (!this.config.showSidebar) { return }
+		if(Platform.isMobile) { return }
 
 		const toggleBtn = this.mainEl.createEl('a', 'chess-toggle-sidebar-btn')
 		toggleBtn.ariaLabel = 'Toggle Sidebar'
@@ -185,12 +201,7 @@ export class ChessView extends MarkdownRenderChild {
 
 		toggleBtn.addEventListener('click', (e: MouseEvent) => {
 			e.preventDefault()
-			e.stopPropagation()
-			if (this.mainEl.hasClass('no-menu')) {
-				this.mainEl.removeClass('no-menu')
-			} else {
-				this.mainEl.addClass('no-menu')
-			}
+			this.toggleSidebar()
 		})
 	}
 
@@ -204,13 +215,13 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private setupKeyboardShortcuts() {
-		this.mainEl.setAttribute('tabindex', '0')
-		this.mainEl.style.outline = 'none'
+		this.containerEl.setAttribute('tabindex', '0')
+		this.containerEl.style.outline = 'none'
 
-		this.mainEl.addEventListener('keydown', (e: KeyboardEvent) => {
+		this.containerEl.addEventListener('keydown', (e: KeyboardEvent) => {
 			const activeElement = document.activeElement
-			const isFocused = activeElement === this.mainEl || 
-			                  this.mainEl.contains(activeElement)
+			const isFocused = activeElement === this.containerEl || 
+			                  this.containerEl.contains(activeElement)
 			
 			if (isFocused && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
 				e.preventDefault()
@@ -224,10 +235,10 @@ export class ChessView extends MarkdownRenderChild {
 			}
 		})
 
-		this.mainEl.addEventListener('click', (e: MouseEvent) => {
+		this.containerEl.addEventListener('click', (e: MouseEvent) => {
 			const target = e.target as HTMLElement
-			if (target === this.mainEl || target.closest('.chess-view')) {
-				this.mainEl.focus()
+			if (target === this.containerEl || target.closest('.chess-view')) {
+				this.containerEl.focus()
 			}
 		}, true) // Use capture phase to catch clicks early
 	}
@@ -243,19 +254,23 @@ export class ChessView extends MarkdownRenderChild {
 			},
 		})
 
-		// Give time for board to render
 		setTimeout(() => { this.updateBoardAnnotations() }, 50)
+		this.sidebar?.createMoveList()
+		this.updateToolbar()
+	}
 
-		if (this.sidebar) {
-			// Reload move list
-			this.sidebar.createMoveList()
-		}
+	private updateToolbar() {
+		if (!this.toolbar) { return }
+
+		const isFirstMove = this.currentMoveIndex === -1
+		const isLastMove = this.currentMoveIndex === this.moves.length - 1
+		
+		this.toolbar.previousButton.toggleClass('is-disabled', isFirstMove)
+		this.toolbar.nextButton.toggleClass('is-disabled', isLastMove)
 	}
 
 	public updateBoardAnnotations() {
-		if (!this.config.showAnnotations) {
-			return
-		}
+		if (!this.config.showAnnotations) { return }
 
 		this.mainEl.querySelectorAll('.chess-annotation-icon').forEach(el => el.remove())
 
@@ -375,6 +390,22 @@ export class ChessView extends MarkdownRenderChild {
 		this.updateBoard()
 	}
 
+	private setupResizeObserver() {
+		const boardEl = this.mainEl.querySelector('.cg-wrap')
+		const resizeObserver = new ResizeObserver(entries => {
+			const width = entries[0].contentRect.width
+			if(this.sidebar) {
+				this.sidebar.sidebarEl.style.maxHeight = `${width}px`
+			}
+			if(this.toolbar && !this.sidebar) {
+				this.toolbar.toolbarEl.style.width = `${width}px`
+			}
+			// Reposition annotation icons
+			this.updateBoardAnnotations()
+		})
+		resizeObserver.observe(boardEl)
+	}
+
 	public getTurnColor(): Color {
 		return this.chess.turn() === 'w' ? 'white' : 'black'
 	}
@@ -429,6 +460,10 @@ export class ChessView extends MarkdownRenderChild {
 			case GameResult.BlackWins: return 'Black wins'
 			case GameResult.Draw: return 'Draw'
 		}
+	}
+
+	public toggleSidebar() {
+		this.containerEl.toggleClass('hide-sidebar', !this.containerEl.hasClass('hide-sidebar'))
 	}
 
 	private playSound(move: Move): void {

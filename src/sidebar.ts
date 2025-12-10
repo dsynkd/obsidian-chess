@@ -5,10 +5,10 @@ import { Platform } from 'obsidian'
 
 export default class Sidebar {
 	private view: ChessView
-	private sidebarEl: HTMLElement
+	public sidebarEl: HTMLElement
 	private moveListContainer: HTMLElement
 	private moveListEl: HTMLElement
-	private toolbar?: Toolbar
+	public toolbar?: Toolbar
 	private parentContainer: HTMLElement
 	private config: Config
 	private activeMoveEl?: HTMLElement
@@ -22,7 +22,6 @@ export default class Sidebar {
 
 		this.createMoveList()
 		this.createToolbar()
-		this.setupResizeObserver()
 		setTimeout(() => {this.restoreScrollPosition(this.moveListEl.scrollHeight)}, 50)
 	}
 
@@ -30,8 +29,7 @@ export default class Sidebar {
 		if (!this.config.showToolbar || Platform.isMobile) {
 			return
 		}
-		this.toolbar = new Toolbar(this.sidebarEl, this.view)
-		this.updateButtonStates()
+		this.toolbar = new Toolbar(this.sidebarEl, this.view, this.config)
 	}
 
 	public createMoveList() {
@@ -56,7 +54,6 @@ export default class Sidebar {
 		})
 		
 		this.restoreScrollPosition(previousScrollPosition ?? 0)
-		this.updateButtonStates()
 	}
 
 	private createMoveText(moveEl: HTMLElement, text: string) {
@@ -126,29 +123,6 @@ export default class Sidebar {
 				}
 			})
 		}
-	}
-
-	private updateButtonStates() {
-		if (!this.toolbar) { return }
-		
-		const history = this.view.history()
-		const currentIndex = this.view.currentMoveIndex
-		const isFirstMove = currentIndex === -1
-		const isLastMove = currentIndex === history.length - 1
-		
-		this.toolbar.previousButton.toggleClass('is-disabled', isFirstMove)
-		this.toolbar.nextButton.toggleClass('is-disabled', isLastMove)
-	}
-
-	private setupResizeObserver() {
-		const boardEl = this.parentContainer.querySelector('.cg-wrap')
-		const resizeObserver = new ResizeObserver(entries => {
-			const width = entries[0].contentRect.width
-			this.sidebarEl.style.maxHeight = `${width}px`
-			// Reposition annotation icons
-			this.view.updateBoardAnnotations()
-		})
-		resizeObserver.observe(boardEl)
 	}
 
 }

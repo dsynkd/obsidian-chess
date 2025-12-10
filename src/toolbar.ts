@@ -1,16 +1,19 @@
 import { setIcon } from 'obsidian'
 import { ChessView } from './view'
+import { Config } from './config'
 
 export default class Toolbar {
 	public previousButton: HTMLAnchorElement | null = null
 	public nextButton: HTMLAnchorElement | null = null
-	private toolbarEl: HTMLElement | null
+	public toolbarEl: HTMLElement | null
 	private view: ChessView
+    private config: Config
 	private parentContainer: HTMLElement
 
-	constructor(parentEl: HTMLElement, view: ChessView) {
+	constructor(parentEl: HTMLElement, view: ChessView, config: Config) {
 		this.view = view
 		this.parentContainer = parentEl
+        this.config = config
 	
 		this.toolbarEl = parentEl.createDiv('chess-toolbar')
 		this.createPreviousMoveButton()
@@ -74,13 +77,14 @@ export default class Toolbar {
 	}
 
 	private createToggleSidebarButton() {
+        if(!this.config.showSidebar) { return }
 		this.toolbarEl.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
 			btn.ariaLabel = 'Toggle Sidebar'
 			setIcon(btn, 'menu')
 
 			btn.addEventListener('click', (e: MouseEvent) => {
 				e.preventDefault()
-				this.parentContainer.addClass('no-menu')
+				this.view.toggleSidebar()
 			})
 		})
 	}

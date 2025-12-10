@@ -34,11 +34,7 @@ export default class ChessPlugin extends Plugin {
 					return
 				}
 
-				if(document.activeElement.hasClass('no-menu')) {
-					document.activeElement.removeClass('no-menu')
-				} else {
-					document.activeElement.addClass('no-menu')
-				}
+				document.activeElement.toggleClass('hide-sidebar', document.activeElement.hasClass('hide-sidebar'))
 			},
 			hotkeys: []
 		})
