@@ -179,6 +179,10 @@ export class ChessView extends MarkdownRenderChild {
 			return
 		}
 		this.sidebar = new Sidebar(this.mainEl, this, this.config)
+		if (Platform.isMobile) {
+			// On mobile, sidebar should be hidden by default and displayed as overlay
+			this.containerEl.addClass('hide-sidebar')
+		}
 		this.setupToggleSidebarButton()
 	}
 

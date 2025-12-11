@@ -4,7 +4,6 @@
 	--cg-wrap-min-width: 300px;
 	--cg-wrap-initial-width: 400px;
 	--chess-view-border: 1px solid var(--background-modifier-border);
-	--sidebar-left-padding: 10px;
 
 	display: flex;
 	flex-direction: column;
@@ -12,7 +11,6 @@
 	&.has-annotations {
 		padding-top: 10px;
 	}
-
 
 	&.hide-sidebar, &.no-sidebar {
 		& div.cg-wrap {
@@ -22,7 +20,6 @@
 		& .chess-sidebar {
 			max-width: 0;
 			min-width: 0;
-			/* opacity: 0; */
 			transform: translateX(-100%);
 		}
 	}
@@ -48,9 +45,12 @@
 
 .is-mobile .chess-view-container {
 	--cg-wrap-initial-width: 100%;
-	--sidebar-menu-min-width: 0;
 	--chess-view-border: none;
-	--sidebar-left-padding: 0;
+
+	&.hide-sidebar .chess-sidebar {
+		min-width: var(--sidebar-menu-min-width);
+		transform: translateX(var(--sidebar-menu-min-width));
+	}
 }
 
 .chess-view {
@@ -95,6 +95,10 @@ div.cg-wrap {
 	}
 }
 
+.is-mobile div.cg-wrap {
+	max-width: 100%;
+}
+
 .chess-annotation-icon {
 	position: absolute;
 	width: 18px;
@@ -110,10 +114,10 @@ div.cg-wrap {
 	height: 100vh;
 	flex: 1;
 	min-width: var(--sidebar-menu-min-width);
-	padding-left: var(--sidebar-left-padding);
-	transition: max-width 0.3s ease, 
-	            min-width 0.3s ease, 
-	            opacity 0.3s ease,
+	padding-left: var(--move-list-gap);
+	background-color: var(--background-primary);
+	transition: max-width 0.3s ease,
+	            min-width 0.3s ease,
 	            transform 0.3s ease;
 	overflow: hidden;
 	z-index: 0;
@@ -123,6 +127,17 @@ div.cg-wrap {
 		flex-direction: column;
 		overflow: auto;
 	}
+}
+
+/* Mobile sidebar overlay styles */
+.is-mobile .chess-sidebar {
+	position: absolute;
+	top: 0;
+	right: 0;
+	flex: none;
+	max-width: var(--sidebar-menu-min-width);
+	border: 1px solid var(--background-modifier-border);
+	z-index: 1;
 }
 
 .chess-toolbar {
@@ -136,7 +151,7 @@ div.cg-wrap {
 	& a.is-disabled {
 		cursor: default;
 		pointer-events: none;
-		opacity: 0.4;
+		color: var(--background-modifier-border);
 	}
 }
 
