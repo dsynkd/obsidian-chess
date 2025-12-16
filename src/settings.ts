@@ -116,6 +116,16 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
+			.setName('Show Toolbar')
+			.setDesc('Displays toolbar buttons for navigation and controls in the sidebar.')
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.showToolbar).onChange((showToolbar) => {
+					this.plugin.settings.showToolbar = showToolbar
+					this.plugin.saveSettings()
+				})
+			})
+
+		new Setting(containerEl)
 		.setName('Center Chessboard')
 		.setDesc('Cemter the board when the sidebar is hidden.')
 		.addToggle((toggle) => {
@@ -124,16 +134,6 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 				this.plugin.saveSettings()
 			})
 		})
-
-		new Setting(containerEl)
-			.setName('Enable Toolbar')
-			.setDesc('Displays toolbar buttons for navigation and controls in the sidebar.')
-			.addToggle((toggle) => {
-				toggle.setValue(this.plugin.settings.showToolbar).onChange((showToolbar) => {
-					this.plugin.settings.showToolbar = showToolbar
-					this.plugin.saveSettings()
-				})
-			})
 
 		containerEl.createEl('h3', { text: 'Annotations' })
 
@@ -150,7 +150,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Audio' })
 
 		new Setting(containerEl)
-			.setName('Enable Sounds')
+			.setName('Play Sounds')
 			.setDesc('Plays standard chess move and capture sounds on each move.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.enableSounds).onChange((enableSounds) => {
