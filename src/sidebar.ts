@@ -77,10 +77,12 @@ export default class Sidebar {
 				title = this.view.getResultText(gameResult)
 			} else if(this.view.isMate()) {
 				title = (this.view.turn() === 'b' ? 'White wins' : 'Black wins')
+			} else {
+				title = (this.view.turn() === 'b' ? 'Black to play': 'White to play')
 			}
 			
 		} else {
-			title = (this.view.turn() === 'b' ? "Black's turn" : "White's turn")
+			title = (this.view.turn() === 'b' ? 'Black to play' : 'White to play')
 		}
 		
 		this.moveListContainer.createDiv({
