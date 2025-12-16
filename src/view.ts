@@ -92,10 +92,12 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private loadAnnotations() {
-		if(!this.config.showAnnotations || !this.config.pgn) { return }
+		if(!this.config.pgn) { return }
 
 		const game = parsePgn(this.config.pgn)[0]
 		this.loadGameResult(game)
+
+		if(!this.config.showAnnotations) { return }
 
 		let currentMove = game.moves.children[0]
 		let index = 0
