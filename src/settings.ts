@@ -107,7 +107,6 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Show Sidebar')
-			.setDesc('Displays a sidebar containing move history and controls.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showSidebar).onChange((showSidebar) => {
 					this.plugin.settings.showSidebar = showSidebar
@@ -117,7 +116,6 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Show Toolbar')
-			.setDesc('Displays toolbar buttons for navigation and controls in the sidebar.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showToolbar).onChange((showToolbar) => {
 					this.plugin.settings.showToolbar = showToolbar
@@ -151,7 +149,6 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Play Sounds')
-			.setDesc('Plays standard chess move and capture sounds on each move.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.enableSounds).onChange((enableSounds) => {
 					this.plugin.settings.enableSounds = enableSounds
