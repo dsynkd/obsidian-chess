@@ -2,6 +2,7 @@ import {
 	App,
 	MarkdownPostProcessorContext,
 	MarkdownRenderChild,
+	Menu,
 	setIcon,
 	Platform
 } from 'obsidian'
@@ -66,6 +67,7 @@ export class ChessView extends MarkdownRenderChild {
 			this.setupToolbar()
 			this.setupKeyboardShortcuts()
 			this.setupResizeObserver()
+			this.setupContextMenu()
 		} catch(e) {
 			this.presentError(e.message ?? e)
 		}
@@ -431,6 +433,11 @@ export class ChessView extends MarkdownRenderChild {
 		this.playSound(this.moves[this.currentMoveIndex])
 	}
 
+	public resetBoard() {
+		this.loadMoveList()
+		this.setMoveIndex(-1)
+	}
+
 	public isMate() {
 		const currentMove = this.moves[this.currentMoveIndex]
 		return currentMove.san[currentMove.san.length-1] === '#'
@@ -466,6 +473,68 @@ export class ChessView extends MarkdownRenderChild {
 			case GameResult.BlackWins: return 'Black wins'
 			case GameResult.Draw: return 'Draw'
 		}
+	}
+
+	public getPgn(): string {
+		let pgn = ''
+		let moveIndex = 1
+		
+		this.moves.forEach((move, index) => {
+			const annotation = (move.annotation?.getGlyph() ?? '')
+			if (index % 2 === 0) {
+				pgn += `${moveIndex}. ${move.san}${annotation}`
+			}
+			else {
+				pgn += ` ${move.san}${annotation}\n`
+				moveIndex += 1
+			}
+		})
+		return pgn.trim()
+	}
+
+	private setupContextMenu() {
+		this.mainEl.addEventListener('contextmenu', (e) => {
+			e.preventDefault()
+			const menu = new Menu()
+			menu.addItem((item) =>
+				item.setTitle('Copy PGN').setIcon('copy').onClick(() => {
+					navigator.clipboard.writeText(this.getPgn())
+				})
+			)
+			menu.addItem((item) =>
+				item.setTitle('Copy FEN').setIcon('copy').onClick(() => {
+					navigator.clipboard.writeText(this.getFen())
+				})
+			)
+			menu.addItem((item) =>
+				item.setTitle('Previous Move').setIcon('left-arrow').onClick(() => {
+					this.previousMove()
+				})
+			)
+			menu.addItem((item) =>
+				item.setTitle('Next Move').setIcon('right-arrow').onClick(() => {
+					this.nextMove()
+				})
+			)
+			menu.addItem((item) =>
+				item.setTitle('Reset Board').setIcon('restore-file-glyph').onClick(() => {
+					this.resetBoard()
+				})
+			)
+			menu.addItem((item) =>
+				item.setTitle('Flip Board').setIcon('switch').onClick(() => {
+					this.flipBoard()
+				})
+			)
+			if(this.config.showSidebar) {
+				menu.addItem((item) =>
+					item.setTitle('Toggle Sidebar').setIcon('menu').onClick(() => {
+						this.toggleSidebar()
+					})
+				)
+			}
+			menu.showAtMouseEvent(e)
+		})
 	}
 
 	public toggleSidebar() {

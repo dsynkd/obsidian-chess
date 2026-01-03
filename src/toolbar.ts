@@ -53,13 +53,12 @@ export default class Toolbar {
 
 	private createResetButton() {
 		this.toolbarEl.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-			btn.ariaLabel = 'Reset'
+			btn.ariaLabel = 'Reset Board'
 			setIcon(btn, 'restore-file-glyph')
 			
 			btn.addEventListener('click', (e: MouseEvent) => {
 				e.preventDefault()
-				this.view.loadMoveList()
-				this.view.setMoveIndex(-1)
+				this.view.resetBoard()
 			})
 		})
 	}
