@@ -489,7 +489,12 @@ export class ChessView extends MarkdownRenderChild {
 				moveIndex += 1
 			}
 		})
-		return pgn.trim()
+		pgn = pgn.trim()
+		
+		if(this.gameResult) {
+			pgn += ` ${this.gameResult}`
+		}
+		return pgn
 	}
 
 	private setupContextMenu() {
