@@ -114,14 +114,14 @@ export default class Sidebar {
 			// Use requestAnimationFrame to ensure DOM is fully rendered
 			requestAnimationFrame(() => {
 				const containerRect = this.moveListEl.getBoundingClientRect()
-				const moveRect = this.activeMoveEl!.getBoundingClientRect()
+				const moveRect = this.activeMoveEl.getBoundingClientRect()
 				
 				// Check if move is outside visible area
 				const isAboveViewport = moveRect.bottom < containerRect.top
 				const isBelowViewport = moveRect.top > containerRect.bottom
 				
 				if (isAboveViewport || isBelowViewport) {
-					this.activeMoveEl!.scrollIntoView({ behavior: 'instant', block: 'nearest' })
+					this.activeMoveEl.scrollIntoView({ behavior: 'instant', block: 'nearest' })
 				}
 			})
 		}

@@ -26,8 +26,8 @@ export default class ChessPlugin extends Plugin {
 		
 		// MARK: Register Commands
 		this.addCommand({
-			id: 'chess-toggle-sidebar',
-			name: 'Toggle Sidebar',
+			id: 'toggle-sidebar',
+			name: 'Toggle sidebar',
 			callback: () => {
 				// Only execute if the current active container is a Chess View
 				if(document.activeElement.hasClass('chess-view') === false) {
@@ -87,6 +87,8 @@ export default class ChessPlugin extends Plugin {
 			const view = leaf.view as MarkdownView
 			this.app.vault.read(view.file).then(content => {
 				view.setViewData(content, true)
+			}).catch((e) => {
+				console.warn(`[Obsidian Chess] Error: ${e}`)
 			})
 		})
 	}

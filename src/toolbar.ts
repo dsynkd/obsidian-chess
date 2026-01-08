@@ -25,7 +25,7 @@ export default class Toolbar {
 
 	private createPreviousMoveButton() {
 		this.previousButton = this.toolbarEl.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-			btn.ariaLabel = 'Previous Move'
+			btn.ariaLabel = 'Previous move'
 			setIcon(btn, 'left-arrow')
 
 			btn.addEventListener('click', (e: MouseEvent) => {
@@ -39,7 +39,7 @@ export default class Toolbar {
 
 	private createNextMoveButton() {
 		this.nextButton = this.toolbarEl.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-			btn.ariaLabel = 'Next Move'
+			btn.ariaLabel = 'Next move'
 			setIcon(btn, 'right-arrow')
 
 			btn.addEventListener('click', (e: MouseEvent) => {
@@ -53,7 +53,7 @@ export default class Toolbar {
 
 	private createResetButton() {
 		this.toolbarEl.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-			btn.ariaLabel = 'Reset Board'
+			btn.ariaLabel = 'Reset board'
 			setIcon(btn, 'restore-file-glyph')
 			
 			btn.addEventListener('click', (e: MouseEvent) => {
@@ -78,7 +78,7 @@ export default class Toolbar {
 	private createToggleSidebarButton() {
         if(!this.view.shouldShowSidebar()) { return }
 		this.toolbarEl.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
-			btn.ariaLabel = 'Toggle Sidebar'
+			btn.ariaLabel = 'Toggle sidebar'
 			setIcon(btn, 'menu')
 
 			btn.addEventListener('click', (e: MouseEvent) => {

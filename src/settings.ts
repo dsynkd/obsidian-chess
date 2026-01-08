@@ -43,7 +43,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		containerEl.empty()
 
 		// Chessboard Section
-		containerEl.createEl('h3', { text: 'Chessboard' })
+		new Setting(containerEl).setName('Chessboard').setHeading()
 
 		new Setting(containerEl)
 			.setName('Interactability')
@@ -51,12 +51,12 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.interactability).onChange((interactability) => {
 					this.plugin.settings.interactability = interactability
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
 		new Setting(containerEl)
-			.setName('Show Coordinates')
+			.setName('Show coordinates')
 			.setDesc('Displays rank (1-8) and file (a-h) labels on the chessboard.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showCoordinates).onChange((showCoordinates) => {
@@ -66,7 +66,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName('Piece Style')
+			.setName('Piece style')
 			.addDropdown((dropdown) => {
 				const styles: Record<string, string> = {}
 				PIECE_STYLES.map((style) => (styles[style] = style))
@@ -74,12 +74,12 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 				dropdown.setValue(this.plugin.settings.pieceStyle).onChange((pieceStyle) => {
 					this.plugin.settings.pieceStyle = pieceStyle
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
 		new Setting(containerEl)
-			.setName('Board Style')
+			.setName('Board style')
 			.addDropdown((dropdown) => {
 				const styles: Record<string, string> = {}
 				BOARD_STYLES.map((style) => (styles[style] = style))
@@ -87,24 +87,24 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 				dropdown.setValue(this.plugin.settings.boardStyle).onChange((boardStyle) => {
 					this.plugin.settings.boardStyle = boardStyle
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
 		new Setting(containerEl)
-			.setName('Default Orientation')
+			.setName('Default orientation')
 			.addDropdown((dropdown) => {
 				dropdown.addOption('white', 'White')
 				dropdown.addOption('black', 'Black')
 
 				dropdown.setValue(this.plugin.settings.orientation).onChange((orientation) => {
 					this.plugin.settings.orientation = orientation
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
 		new Setting(containerEl)
-			.setName('Board Alignment')
+			.setName('Board alignment')
 			.setDesc('Alignment of the chess view when the sidebar is hidden.')
 			.addDropdown((dropdown) => {
 				dropdown.addOption('leading', 'Leading')
@@ -113,50 +113,50 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 				dropdown.setValue(this.plugin.settings.boardAlignment).onChange((boardAlignment) => {
 					this.plugin.settings.boardAlignment = boardAlignment
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
-		containerEl.createEl('h3', { text: 'Sidebar' })
+		new Setting(containerEl).setName('Sidebar').setHeading()
 
 		new Setting(containerEl)
-			.setName('Show Sidebar')
+			.setName('Show sidebar')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showSidebar).onChange((showSidebar) => {
 					this.plugin.settings.showSidebar = showSidebar
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
 		new Setting(containerEl)
-			.setName('Show Toolbar')
+			.setName('Show toolbar')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showToolbar).onChange((showToolbar) => {
 					this.plugin.settings.showToolbar = showToolbar
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
-		containerEl.createEl('h3', { text: 'Annotations' })
+		new Setting(containerEl).setName('Annotations').setHeading()
 
 		new Setting(containerEl)
-			.setName('Show Annotations')
+			.setName('Show annotations')
 			.setDesc('Displays move annotations (!!, !, ?!, ?, ??, !?) on the board and in the move list.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showAnnotations).onChange((showAnnotations) => {
 					this.plugin.settings.showAnnotations = showAnnotations
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 
-		containerEl.createEl('h3', { text: 'Audio' })
+		new Setting(containerEl).setName('Audio').setHeading()
 
 		new Setting(containerEl)
-			.setName('Play Sounds')
+			.setName('Play sounds')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.playSounds).onChange((playSounds) => {
 					this.plugin.settings.playSounds = playSounds
-					this.plugin.saveSettings()
+					void this.plugin.saveSettings()
 				})
 			})
 	}

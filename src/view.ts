@@ -75,7 +75,7 @@ export class ChessView extends MarkdownRenderChild {
 
 	public loadMoveList() {
 		if (this.config.pgn && this.config.fen) {
-			throw 'Both FEN and PGN detected.'
+			throw new Error('Both FEN and PGN detected.')
 		}
 
 		if (this.config.pgn) {
@@ -85,7 +85,7 @@ export class ChessView extends MarkdownRenderChild {
 			this.chess.load(this.config.fen)
 		}
 		else {
-			throw 'No FEN or PGN found.'
+			throw new Error('No FEN or PGN found.')
 		}
 
 		this.moves = this.chess.history({ verbose: true })
@@ -206,7 +206,7 @@ export class ChessView extends MarkdownRenderChild {
 		if(Platform.isMobile) { return }
 
 		const toggleBtn = this.mainEl.createEl('a', 'chess-toggle-sidebar-btn')
-		toggleBtn.ariaLabel = 'Toggle Sidebar'
+		toggleBtn.ariaLabel = 'Toggle sidebar'
 		setIcon(toggleBtn, 'menu')
 
 		toggleBtn.addEventListener('click', (e: MouseEvent) => {
@@ -226,7 +226,7 @@ export class ChessView extends MarkdownRenderChild {
 
 	private setupKeyboardShortcuts() {
 		this.containerEl.setAttribute('tabindex', '0')
-		this.containerEl.style.outline = 'none'
+		this.containerEl.setCssProps({ outline: 'none' })
 
 		this.containerEl.addEventListener('keydown', (e: KeyboardEvent) => {
 			const activeElement = document.activeElement
@@ -505,37 +505,37 @@ export class ChessView extends MarkdownRenderChild {
 			const menu = new Menu()
 			menu.addItem((item) =>
 				item.setTitle('Copy PGN').setIcon('copy').onClick(() => {
-					navigator.clipboard.writeText(this.getPgn())
+					void navigator.clipboard.writeText(this.getPgn())
 				})
 			)
 			menu.addItem((item) =>
 				item.setTitle('Copy FEN').setIcon('copy').onClick(() => {
-					navigator.clipboard.writeText(this.getFen())
+					void navigator.clipboard.writeText(this.getFen())
 				})
 			)
 			menu.addItem((item) =>
-				item.setTitle('Previous Move').setIcon('left-arrow').onClick(() => {
+				item.setTitle('Previous move').setIcon('left-arrow').onClick(() => {
 					this.previousMove()
 				})
 			)
 			menu.addItem((item) =>
-				item.setTitle('Next Move').setIcon('right-arrow').onClick(() => {
+				item.setTitle('Next move').setIcon('right-arrow').onClick(() => {
 					this.nextMove()
 				})
 			)
 			menu.addItem((item) =>
-				item.setTitle('Reset Board').setIcon('restore-file-glyph').onClick(() => {
+				item.setTitle('Reset board').setIcon('restore-file-glyph').onClick(() => {
 					this.resetBoard()
 				})
 			)
 			menu.addItem((item) =>
-				item.setTitle('Flip Board').setIcon('switch').onClick(() => {
+				item.setTitle('Flip board').setIcon('switch').onClick(() => {
 					this.flipBoard()
 				})
 			)
 			if(this.shouldShowSidebar()) {
 				menu.addItem((item) =>
-					item.setTitle('Toggle Sidebar').setIcon('menu').onClick(() => {
+					item.setTitle('Toggle sidebar').setIcon('menu').onClick(() => {
 						this.toggleSidebar()
 					})
 				)
