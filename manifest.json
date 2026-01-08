@@ -3,7 +3,7 @@
   "name": "Chess",
   "version": "1.0.0",
   "minAppVersion": "0.9.12",
-  "description": "Chess plugin for Obsidian.",
+  "description": "View and interact with PGN and FEN positions.",
   "author": "dsynkd",
   "authorUrl": "https://github.com/dsynkd",
   "isDesktopOnly": false
