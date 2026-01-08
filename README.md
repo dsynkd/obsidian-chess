@@ -143,7 +143,11 @@ Move annotations in the sidebar have the following CSS classes:
 - `chess-move-annotation-blunder`
 - `chess-move-annotation-checkmate`
 
-Additionally, you can use the the `center-board` CSS class in `cssclasses` frontmatter property to align the board in the center. This may be useful for when you have the sidebar hidde.
+Additionally, you can use the following CSS classes in the `cssclasses` frontmatter property to control board alignment when the sidebar is hidden (overrides config). 
+
+- `chess-board-align-leading` (Default)
+- `chess-board-align-middle`
+- `chess-board-align-trailing`
 
 ## License
 

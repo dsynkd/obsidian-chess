@@ -10,7 +10,7 @@ export interface Settings {
 	boardStyle: string
 	orientation: string
 	showSidebar: boolean
-	centerBoard: boolean
+	boardAlignment: string
 	showAnnotations: boolean
 	enableSounds: boolean
 	showToolbar: boolean
@@ -23,7 +23,7 @@ export const DEFAULT_SETTINGS: Settings = {
 	boardStyle: 'brown',
 	orientation: 'white',
 	showSidebar: true,
-	centerBoard: false,
+	boardAlignment: 'leading',
 	showAnnotations: true,
 	enableSounds: false,
 	showToolbar: true,
@@ -103,6 +103,20 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 				})
 			})
 
+		new Setting(containerEl)
+			.setName('Board Alignment')
+			.setDesc('Alignment of the chess view when the sidebar is hidden.')
+			.addDropdown((dropdown) => {
+				dropdown.addOption('leading', 'Leading')
+				dropdown.addOption('middle', 'Middle')
+				dropdown.addOption('trailing', 'Trailing')
+
+				dropdown.setValue(this.plugin.settings.boardAlignment).onChange((boardAlignment) => {
+					this.plugin.settings.boardAlignment = boardAlignment
+					this.plugin.saveSettings()
+				})
+			})
+
 		containerEl.createEl('h3', { text: 'Sidebar' })
 
 		new Setting(containerEl)
@@ -122,16 +136,6 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 					this.plugin.saveSettings()
 				})
 			})
-
-		new Setting(containerEl)
-		.setName('Center Chessboard')
-		.setDesc('Cemter the board when the sidebar is hidden.')
-		.addToggle((toggle) => {
-			toggle.setValue(this.plugin.settings.centerBoard).onChange((centerBoard) => {
-				this.plugin.settings.centerBoard = centerBoard
-				this.plugin.saveSettings()
-			})
-		})
 
 		containerEl.createEl('h3', { text: 'Annotations' })
 

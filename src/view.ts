@@ -172,9 +172,7 @@ export class ChessView extends MarkdownRenderChild {
 			this.config.pieceStyle,
 			`${this.config.boardStyle}-board`, 'chess-view']
 		)
-		if(this.config.centerBoard) {
-			this.containerEl.addClass('center-board')
-		}
+		this.containerEl.addClass(`chess-align-${this.config.boardAlignment}`)
 	}
 
 	public shouldShowSidebar() {
@@ -548,6 +546,7 @@ export class ChessView extends MarkdownRenderChild {
 
 	public toggleSidebar() {
 		this.containerEl.toggleClass('hide-sidebar', !this.containerEl.hasClass('hide-sidebar'))
+		setTimeout(() => this.updateBoardAnnotations(), 300)
 	}
 
 	private playSound(move: Move): void {
