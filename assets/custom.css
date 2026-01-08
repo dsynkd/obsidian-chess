@@ -1,3 +1,5 @@
+/* MARK: Container view */
+
 .chess-view-container {
 	--sidebar-menu-min-width: 150px;
 	--move-list-gap: 10px;
@@ -54,6 +56,8 @@
 	}
 }
 
+/* MARK: Main view */
+
 .chess-view {
 	display: flex;
 	align-items: flex-start;
@@ -62,9 +66,6 @@
 }
 
 div.cg-wrap {
-	
-	/* Initial size */
-	
 	width: var(--cg-wrap-initial-width);
 	resize: horizontal;
 	flex: none;
@@ -73,8 +74,15 @@ div.cg-wrap {
 	aspect-ratio: 1;
 	z-index: 1;
 	overflow: hidden;
+}
 
-	/* Fix coordinate placement */
+.is-mobile div.cg-wrap {
+	max-width: 100%;
+}
+
+/* MARK: Coordinates */
+
+div.cg-wrap {
 
 	& coords.files {
 		bottom: -2px;
@@ -85,8 +93,6 @@ div.cg-wrap {
 		top: -5%;
 	}
 
-	/* Toggle coordinate visibility */
-
 	& coords {
 		opacity: 0;
 	}
@@ -96,9 +102,7 @@ div.cg-wrap {
 	}
 }
 
-.is-mobile div.cg-wrap {
-	max-width: 100%;
-}
+/* MARK: Annotation icons */
 
 .chess-annotation-icon {
 	position: absolute;
@@ -109,37 +113,7 @@ div.cg-wrap {
 	box-shadow: 1px 1px 100px rgba(0, 0, 0, 0.2);
 }
 
-.chess-sidebar {
-	display: flex;
-	flex-direction: column;
-	height: 100vh;
-	flex: 1;
-	min-width: var(--sidebar-menu-min-width);
-	padding-left: var(--move-list-gap);
-	background-color: var(--background-primary);
-	transition: max-width 0.3s ease,
-	            min-width 0.3s ease,
-	            transform 0.3s ease;
-	overflow: hidden;
-	z-index: 0;
-
-	& .chess-sidebar-section {
-		display: flex;
-		flex-direction: column;
-		overflow: auto;
-	}
-}
-
-/* Mobile sidebar overlay styles */
-.is-mobile .chess-sidebar {
-	position: absolute;
-	top: 0;
-	right: 0;
-	flex: none;
-	max-width: var(--sidebar-menu-min-width);
-	border: 1px solid var(--background-modifier-border);
-	z-index: 1;
-}
+/* MARK: Toolbar */
 
 .chess-toolbar {
 	border-top: 1px solid var(--background-modifier-border);
@@ -168,10 +142,47 @@ div.cg-wrap {
 	}
 }
 
+/* MARK: Sidebar */
+
+.chess-sidebar {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	flex: 1;
+	min-width: var(--sidebar-menu-min-width);
+	padding-left: var(--move-list-gap);
+	background-color: var(--background-primary);
+	transition: max-width 0.3s ease,
+	            min-width 0.3s ease,
+	            transform 0.3s ease;
+	overflow: hidden;
+	z-index: 0;
+
+	& .chess-sidebar-section {
+		display: flex;
+		flex-direction: column;
+		overflow: auto;
+	}
+}
+
+/* Mobile sidebar overlay styles */
+
+.is-mobile .chess-sidebar {
+	position: absolute;
+	top: 0;
+	right: 0;
+	flex: none;
+	max-width: var(--sidebar-menu-min-width);
+	border: 1px solid var(--background-modifier-border);
+	z-index: 1;
+}
+
 .chess-sidebar-title {
 	font-weight: 500;
 	margin: 8px 0;
 }
+
+/* MARK: Move list */
 
 .chess-move-list {
 	display: flex;
@@ -198,6 +209,8 @@ div.cg-wrap {
 	background-color: var(--background-modifier-border);
 }
 
+/* MARK: Error box */ 
+
 .chess-error {
 	color: var(--text-error);
 	padding: 12px;
@@ -209,34 +222,51 @@ div.cg-wrap {
 	word-break: break-word;
 }
 
-.chess-align-leading div.cg-wrap {
+/* MARK: Board alignment */
+
+.chess-align-leading div.cg-wrap,
+.is-mobile .chess-align-leading .chess-toolbar, 
+.no-sidebar .chess-align-leading .chess-toolbar {
 	margin-left: 0;
 	margin-right: auto;
 }
 
-.chess-align-middle div.cg-wrap {
+.chess-align-middle div.cg-wrap,
+.is-mobile .chess-align-middle .chess-toolbar, 
+.no-sidebar.chess-align-middle .chess-toolbar {
 	margin: 0 auto;
 }
 
-.chess-align-trailing div.cg-wrap {
+.chess-align-trailing div.cg-wrap,
+.is-mobile .chess-align-trailing .chess-toolbar, 
+.no-sidebar.chess-align-trailing .chess-toolbar {
 	margin-left: auto;
 	margin-right: 0;
 }
 
-.chess-board-align-leading div.cg-wrap {
+/* Board alignment cssclasses overrides */
+
+.chess-board-align-leading div.cg-wrap,
+.is-mobile .chess-board-align-leading .chess-toolbar, 
+.chess-board-align-leading .no-sidebar .chess-toolbar {
 	margin-left: 0 !important;
 	margin-right: auto !important;
 }
 
-.chess-board-align-middle div.cg-wrap {
+.chess-board-align-middle div.cg-wrap,
+.is-mobile .chess-board-align-middle .chess-toolbar, 
+.chess-board-align-middle .no-sidebar .chess-toolbar {
 	margin: 0 auto !important;
 }
 
-.chess-board-align-trailing div.cg-wrap {
+.chess-board-align-trailing div.cg-wrap,
+.is-mobile .chess-board-align-trailing .chess-toolbar, 
+.chess-board-align-trailing .no-sidebar .chess-toolbar {
 	margin-left: auto !important;
 	margin-right: 0 !important;
 }
 
+/* MARK: Toggle sidebar button */
 
 .chess-toggle-sidebar-btn {
 	position: absolute;

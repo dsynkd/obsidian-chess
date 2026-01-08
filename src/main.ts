@@ -77,7 +77,7 @@ export default class ChessPlugin extends Plugin {
 				...settings,
 				fen: source.trim()
 			} 
-			if(config.interactability) { config.showSidebar = false }
+			if(!config.interactability) { config.showSidebar = false }
 			ctx.addChild(new ChessView(el, ctx, config, app))
 		}
 	}

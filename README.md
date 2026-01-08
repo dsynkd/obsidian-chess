@@ -87,9 +87,9 @@ The following configuration options are available:
 | `orientation` | `white`/`black`                                              | Orientation of the board.                                    |
 | `showSidebar`    | `true`/`false`                                               | Toggle sidebar visibility.     |
 | `showToolbar`    | `true`/`false`                                               | Toggle toolbar visibility.     |
-| `enableSounds`   | `true`/`false`                                               | Toggle move sounds.           |
+| `playSounds`   | `true`/`false`                                               | Toggle move sounds.           |
 | `showAnnotations`    | `true`/`false`                                               | Toggle annotation icons.     |
-| `enableCoordinates`  | `true`/`false`                                           | Toggle chessboard coordinates. |
+| `showCoordinates`  | `true`/`false`                                           | Toggle chessboard coordinates. |
 | `startingMoveIndex`    | Non-negative integer                                               | The index of the move the board should start on initial render.     |
 
 PGN must be properly formatted as a multiline YAML string (pipe to indicate multiline and 2 or 4 spaces for indent):

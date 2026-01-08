@@ -5,28 +5,28 @@ import { App, PluginSettingTab, Setting } from 'obsidian'
 
 export interface Settings {
 	interactability: boolean
-	enableCoordinates: boolean
+	showCoordinates: boolean
 	pieceStyle: string
 	boardStyle: string
 	orientation: string
-	showSidebar: boolean
 	boardAlignment: string
-	showAnnotations: boolean
-	enableSounds: boolean
+	showSidebar: boolean
 	showToolbar: boolean
+	showAnnotations: boolean
+	playSounds: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-	interactability: false,
-	enableCoordinates: true,
+	interactability: true,
+	showCoordinates: true,
 	pieceStyle: 'cburnett',
 	boardStyle: 'brown',
 	orientation: 'white',
-	showSidebar: true,
 	boardAlignment: 'leading',
-	showAnnotations: true,
-	enableSounds: false,
+	showSidebar: true,
 	showToolbar: true,
+	showAnnotations: true,
+	playSounds: false,
 }
 
 export class ChessPluginSettingTab extends PluginSettingTab {
@@ -47,7 +47,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Interactability')
-			.setDesc('Toggles whether chessboard interactions are allowed. If disabled, displays a static chessboard.')
+			.setDesc('Toggles whether chessboard interactions are allowed. If disabled, displays a static chessboard (view only).')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.interactability).onChange((interactability) => {
 					this.plugin.settings.interactability = interactability
@@ -59,8 +59,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 			.setName('Show Coordinates')
 			.setDesc('Displays rank (1-8) and file (a-h) labels on the chessboard.')
 			.addToggle((toggle) => {
-				toggle.setValue(this.plugin.settings.enableCoordinates).onChange((enableCoordinates) => {
-					this.plugin.settings.enableCoordinates = enableCoordinates
+				toggle.setValue(this.plugin.settings.showCoordinates).onChange((showCoordinates) => {
+					this.plugin.settings.showCoordinates = showCoordinates
 					this.plugin.saveSettings()
 				})
 			})
@@ -154,8 +154,8 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Play Sounds')
 			.addToggle((toggle) => {
-				toggle.setValue(this.plugin.settings.enableSounds).onChange((enableSounds) => {
-					this.plugin.settings.enableSounds = enableSounds
+				toggle.setValue(this.plugin.settings.playSounds).onChange((playSounds) => {
+					this.plugin.settings.playSounds = playSounds
 					this.plugin.saveSettings()
 				})
 			})

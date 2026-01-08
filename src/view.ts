@@ -140,7 +140,7 @@ export class ChessView extends MarkdownRenderChild {
 			fen: this.chess.fen(),
 			lastMove,
 			orientation: this.config.orientation as Color,
-			viewOnly: this.config.interactability,
+			viewOnly: !this.config.interactability,
 			drawable: {
 				enabled: true
 			},
@@ -217,7 +217,7 @@ export class ChessView extends MarkdownRenderChild {
 
 	private applyCoordinates() {
 		const boardEl = this.mainEl.querySelector('.cg-wrap')
-		if (this.config.enableCoordinates === true) {
+		if (this.config.showCoordinates) {
 			boardEl.addClass('chess-show-coords')
 		} else {
 			boardEl.removeClass('chess-show-coords')
@@ -550,7 +550,7 @@ export class ChessView extends MarkdownRenderChild {
 	}
 
 	private playSound(move: Move): void {
-		if (!this.config.enableSounds) { return }
+		if (!this.config.playSounds) { return }
 
 		// Check if this move captured a piece
 		if (move.captured) {
