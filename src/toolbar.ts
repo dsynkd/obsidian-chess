@@ -76,7 +76,7 @@ export default class Toolbar {
 	}
 
 	private createToggleSidebarButton() {
-        if(!this.config.showSidebar) { return }
+        if(!this.view.shouldShowSidebar()) { return }
 		this.toolbarEl.createEl('a', 'view-action', (btn: HTMLAnchorElement) => {
 			btn.ariaLabel = 'Toggle Sidebar'
 			setIcon(btn, 'menu')

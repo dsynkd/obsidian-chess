@@ -4,7 +4,7 @@ import ChessPlugin from './main'
 import { App, PluginSettingTab, Setting } from 'obsidian'
 
 export interface Settings {
-	viewOnly: boolean
+	interactability: boolean
 	enableCoordinates: boolean
 	pieceStyle: string
 	boardStyle: string
@@ -17,7 +17,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-	viewOnly: false,
+	interactability: false,
 	enableCoordinates: true,
 	pieceStyle: 'cburnett',
 	boardStyle: 'brown',
@@ -46,11 +46,11 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Chessboard' })
 
 		new Setting(containerEl)
-			.setName('View Only')
-			.setDesc('Display a static chess board, no interactions allowed.')
+			.setName('Interactability')
+			.setDesc('Toggles whether chessboard interactions are allowed. If disabled, displays a static chessboard.')
 			.addToggle((toggle) => {
-				toggle.setValue(this.plugin.settings.viewOnly).onChange((viewOnly) => {
-					this.plugin.settings.viewOnly = viewOnly
+				toggle.setValue(this.plugin.settings.interactability).onChange((interactability) => {
+					this.plugin.settings.interactability = interactability
 					this.plugin.saveSettings()
 				})
 			})
@@ -137,7 +137,7 @@ export class ChessPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Show Annotations')
-			.setDesc('Displays move annotations (!!, !, ?!, ?, ??) on the board and in the move list.')
+			.setDesc('Displays move annotations (!!, !, ?!, ?, ??, !?) on the board and in the move list.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showAnnotations).onChange((showAnnotations) => {
 					this.plugin.settings.showAnnotations = showAnnotations

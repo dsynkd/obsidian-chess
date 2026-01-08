@@ -140,7 +140,7 @@ export class ChessView extends MarkdownRenderChild {
 			fen: this.chess.fen(),
 			lastMove,
 			orientation: this.config.orientation as Color,
-			viewOnly: this.config.viewOnly,
+			viewOnly: this.config.interactability,
 			drawable: {
 				enabled: true
 			},
@@ -177,8 +177,12 @@ export class ChessView extends MarkdownRenderChild {
 		}
 	}
 
+	public shouldShowSidebar() {
+		return this.config.showSidebar && !this.config.fen
+	}
+
 	private setupSidebar() {
-		if (!this.config.showSidebar) {
+		if (!this.shouldShowSidebar()) {
 			this.containerEl.addClass('no-sidebar')
 			return
 		}
@@ -531,7 +535,7 @@ export class ChessView extends MarkdownRenderChild {
 					this.flipBoard()
 				})
 			)
-			if(this.config.showSidebar) {
+			if(this.shouldShowSidebar()) {
 				menu.addItem((item) =>
 					item.setTitle('Toggle Sidebar').setIcon('menu').onClick(() => {
 						this.toggleSidebar()
