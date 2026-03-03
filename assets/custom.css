@@ -1,7 +1,7 @@
 /* MARK: Container view */
 
 .chess-view-container {
-	--sidebar-menu-min-width: 150px;
+	--sidebar-menu-min-width: 180px;
 	--move-list-gap: 10px;
 	--cg-wrap-min-width: 300px;
 	--cg-wrap-initial-width: 400px;
@@ -117,11 +117,10 @@ div.cg-wrap {
 
 .chess-toolbar {
 	border-top: 1px solid var(--background-modifier-border);
-	margin-top: auto;
-	padding-top: 8px;
 	display: grid;
 	grid-template-columns: repeat(5, 1fr);
 	gap: 8px;
+	min-height: 30px;
 
 	& a.is-disabled {
 		cursor: default;
@@ -142,6 +141,10 @@ div.cg-wrap {
 	}
 }
 
+.chess-toolbar .view-action {
+	padding: 5px;
+}
+
 /* MARK: Sidebar */
 
 .chess-sidebar {
@@ -150,7 +153,6 @@ div.cg-wrap {
 	height: 100vh;
 	flex: 1;
 	min-width: var(--sidebar-menu-min-width);
-	padding-left: var(--move-list-gap);
 	background-color: var(--background-primary);
 	transition: max-width 0.3s ease,
 	            min-width 0.3s ease,
@@ -188,6 +190,7 @@ div.cg-wrap {
 	display: flex;
 	flex-wrap: wrap;
 	overflow-y: scroll;
+	padding-left: var(--move-list-gap);
 	gap: var(--move-list-gap);
 }
 
