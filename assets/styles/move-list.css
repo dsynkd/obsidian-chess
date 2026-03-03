@@ -1,0 +1,25 @@
+.chess-move-list {
+	display: flex;
+	flex-wrap: wrap;
+	overflow-y: scroll;
+	padding-left: var(--move-list-gap);
+	gap: var(--move-list-gap);
+}
+
+.chess-move {
+	color: var(--text-muted);
+	cursor: pointer;
+	font-size: 80%;
+	padding: 4px;
+	width: calc(50% - var(--move-list-gap));
+
+	&:hover {
+		background-color: var(--background-modifier-border);
+	}
+}
+
+.chess-move-active {
+	color: var(--text-normal);
+	font-weight: bold;
+	background-color: var(--background-modifier-border);
+}

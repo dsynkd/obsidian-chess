@@ -1,0 +1,19 @@
+div.cg-wrap {
+
+	& coords.files {
+		bottom: -2px;
+		left: 5%;
+	}
+
+	& coords.ranks {
+		top: -5%;
+	}
+
+	& coords {
+		opacity: 0;
+	}
+
+	&.chess-show-coords coords {
+		opacity: 1;
+	}
+}

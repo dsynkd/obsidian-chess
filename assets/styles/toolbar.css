@@ -1,0 +1,29 @@
+.chess-toolbar {
+	border-top: 1px solid var(--background-modifier-border);
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 8px;
+	min-height: 30px;
+
+	& a.is-disabled {
+		cursor: default;
+		pointer-events: none;
+		color: var(--background-modifier-border);
+	}
+}
+
+.is-mobile .chess-toolbar, .no-sidebar .chess-toolbar {
+	border: 1px solid var(--background-modifier-border);
+	border-top: none;
+	padding-bottom: 8px;
+	width: var(--cg-wrap-initial-width);
+
+	a.view-action {
+		display: flex;
+		justify-content: center;
+	}
+}
+
+.chess-toolbar .view-action {
+	padding: 5px;
+}

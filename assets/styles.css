@@ -1,0 +1,7 @@
+@import './styles/board.css';
+@import './styles/container.css';
+@import './styles/coordinates.css';
+@import './styles/toolbar.css';
+@import './styles/sidebar.css';
+@import './styles/move-list.css';
+@import './styles/error-box.css';

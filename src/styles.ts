@@ -1,6 +1,6 @@
 // Bundle all CSS files into styles.css with Vite
 // Custom styles
-import '../assets/custom.css'
+import '../assets/styles.css'
 
 // Chessground base styles
 import '../node_modules/chessground/assets/chessground.base.css'

@@ -15,3 +15,4 @@ RESOURCES.md
 .envrc
 out/
 .DS_Store
+/styles.css

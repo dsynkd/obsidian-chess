@@ -18,7 +18,7 @@ export default defineConfig(async ({ mode }) => {
       sourcemap: prod ? false : 'inline',
       cssCodeSplit: false,
       emptyOutDir: false,
-      outDir: 'out',
+      outDir: '.',
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'src/main.ts'),

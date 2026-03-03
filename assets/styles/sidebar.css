@@ -1,0 +1,55 @@
+.chess-sidebar {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	flex: 1;
+	min-width: var(--sidebar-menu-min-width);
+	background-color: var(--background-primary);
+	transition: max-width 0.3s ease,
+	            min-width 0.3s ease,
+	            transform 0.3s ease;
+	overflow: hidden;
+	z-index: 0;
+
+	& .chess-sidebar-section {
+		display: flex;
+		flex-direction: column;
+		overflow: auto;
+	}
+}
+
+.chess-toggle-sidebar-btn {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	cursor: pointer;
+	padding: 6px;
+	border-radius: 4px;
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	display: none;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+
+	&:hover {
+		opacity: 1;
+		background-color: var(--background-modifier-hover);
+	}
+}
+
+.is-mobile .chess-sidebar {
+	position: absolute;
+	top: 0;
+	right: 0;
+	flex: none;
+	max-width: var(--sidebar-menu-min-width);
+	border: 1px solid var(--background-modifier-border);
+	z-index: 1;
+}
+
+.chess-sidebar-title {
+	font-weight: 500;
+	margin: 8px 0;
+}

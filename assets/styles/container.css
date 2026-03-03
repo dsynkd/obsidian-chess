@@ -1,0 +1,63 @@
+.chess-view-container {
+	--sidebar-menu-min-width: 180px;
+	--move-list-gap: 10px;
+	--cg-wrap-min-width: 300px;
+	--cg-wrap-initial-width: 400px;
+	--chess-view-border: 1px solid var(--background-modifier-border);
+
+	display: flex;
+	flex-direction: column;
+
+	&.has-annotations {
+		padding-top: 10px;
+	}
+
+	&.hide-sidebar, &.no-sidebar {
+		& div.cg-wrap {
+			max-width: 100%;
+		}
+
+		& .chess-sidebar {
+			max-width: 0;
+			min-width: 0;
+			transform: translateX(-100%);
+		}
+	}
+
+	&.hide-sidebar {
+		--chess-view-border: none;
+		--move-list-gap: 0;
+		& .chess-toggle-sidebar-btn {
+			display: flex;
+		}
+	}
+
+	&.no-sidebar {
+		
+		& div.chess-view {
+			border: none;
+		}
+
+		& .chess-toolbar {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+}
+
+.is-mobile .chess-view-container {
+	--cg-wrap-initial-width: 100%;
+	--chess-view-border: none;
+
+	&.hide-sidebar .chess-sidebar {
+		min-width: var(--sidebar-menu-min-width);
+		transform: translateX(var(--sidebar-menu-min-width));
+	}
+}
+
+
+.chess-view {
+	display: flex;
+	align-items: flex-start;
+	border: var(--chess-view-border);
+	position: relative;
+}

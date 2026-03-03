@@ -1,0 +1,67 @@
+div.cg-wrap {
+	width: var(--cg-wrap-initial-width);
+	resize: horizontal;
+	flex: none;
+	min-width: var(--cg-wrap-min-width);
+	max-width: calc(100% - var(--sidebar-menu-min-width));
+	aspect-ratio: 1;
+	z-index: 1;
+	overflow: hidden;
+}
+
+.is-mobile div.cg-wrap {
+	max-width: 100%;
+}
+
+.chess-annotation-icon {
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	z-index: 10;
+	/* Fix blurry background */
+	box-shadow: 1px 1px 100px rgba(0, 0, 0, 0.2);
+}
+
+/* MARK: Alignment */
+
+.chess-align-leading div.cg-wrap,
+.is-mobile .chess-align-leading .chess-toolbar, 
+.no-sidebar .chess-align-leading .chess-toolbar {
+	margin-left: 0;
+	margin-right: auto;
+}
+
+.chess-align-middle div.cg-wrap,
+.is-mobile .chess-align-middle .chess-toolbar, 
+.no-sidebar.chess-align-middle .chess-toolbar {
+	margin: 0 auto;
+}
+
+.chess-align-trailing div.cg-wrap,
+.is-mobile .chess-align-trailing .chess-toolbar, 
+.no-sidebar.chess-align-trailing .chess-toolbar {
+	margin-left: auto;
+	margin-right: 0;
+}
+
+/* cssclasses overrides */
+
+.chess-board-align-leading div.cg-wrap,
+.is-mobile .chess-board-align-leading .chess-toolbar, 
+.chess-board-align-leading .no-sidebar .chess-toolbar {
+	margin-left: 0 !important;
+	margin-right: auto !important;
+}
+
+.chess-board-align-middle div.cg-wrap,
+.is-mobile .chess-board-align-middle .chess-toolbar, 
+.chess-board-align-middle .no-sidebar .chess-toolbar {
+	margin: 0 auto !important;
+}
+
+.chess-board-align-trailing div.cg-wrap,
+.is-mobile .chess-board-align-trailing .chess-toolbar, 
+.chess-board-align-trailing .no-sidebar .chess-toolbar {
+	margin-left: auto !important;
+	margin-right: 0 !important;
+}
